@@ -10,7 +10,8 @@ A scenario is a combination of three files:
 | `scenarios/<pack>.yaml` | Stage 1 | the system prompt that makes the LLM design situations (`system_prompt`), genre and relationship lists (`genres`, `relationships`, optional `settings`) |
 | `prompts/stage2_<pack>.yaml` | Stage 2 | the system prompt and blocks for writing the dialogue (`system_prompt`, `schema_enriched`, `enriched_section`, ...) |
 
-The prompts are written in Japanese because the dialogues are Japanese.
+The prompts shipped in this release are written in Japanese and generate Japanese dialogues; for another language, see
+[Dialogue language](extending.md#dialogue-language).
 
 ## Included scenarios
 

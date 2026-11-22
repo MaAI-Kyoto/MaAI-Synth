@@ -2,7 +2,7 @@
 <p align="center">MaAI-Synth</p>
 </h1>
 
-<p align="center">An end-to-end pipeline that synthesizes <b>natural Japanese spoken dialogues</b><br>
+<p align="center">An end-to-end pipeline that synthesizes <b>natural spoken dialogues</b><br>
 with <b>turn-taking, overlaps and backchannels</b> — LLM scripts → TTS → timing by <a href="https://github.com/MaAI-Kyoto/MaAI">MaAI</a></p>
 <p align="center">
 📄 README: <a href="README.md">English</a> | <a href="README_JP.md">Japanese (日本語)</a>
@@ -10,7 +10,7 @@ with <b>turn-taking, overlaps and backchannels</b> — LLM scripts → TTS → t
 🎧 Listen to all samples: <a href="https://maai-kyoto.github.io/MaAI-Synth/">https://maai-kyoto.github.io/MaAI-Synth/</a>
 </p>
 
-<b>MaAI-Synth</b> generates two-party spoken dialogues in Japanese, from the situation design to the final stereo audio.
+<b>MaAI-Synth</b> generates two-party spoken dialogues, from the situation design to the final stereo audio.
 An LLM writes the scenario and the script (with fillers, sentence-final particles and short turns, checked by
 quality gates), a voice-cloning TTS reads every utterance in the voice of a given speaker, and
 <a href="https://github.com/MaAI-Kyoto/MaAI"><b>MaAI</b></a> decides <i>when</i> each utterance starts and where
@@ -170,6 +170,9 @@ assigned per dialogue by gender and age. See [readme/voice_bank.md](readme/voice
   change `model`, `llm.base_urls` and `tts.refine.base_urls` in `configs/base.yaml`.
 - **TTS** — a TTS method is a YAML file in `tts_presets/` selected by `tts.engine`.
   New engines plug in as an HTTP server (`POST /v1/audio/speech`) or a synthesizer class in `pipeline/generate_tts.py`.
+- **Language** — the prompts, settings and models shipped in this release are for Japanese; support for English and
+  other languages is planned. The language-dependent parts are listed in
+  [readme/extending.md](readme/extending.md#dialogue-language).
 
 > [!IMPORTANT]
 > **Check the terms of use before switching.** Many LLM and TTS services offered through an API do not allow their

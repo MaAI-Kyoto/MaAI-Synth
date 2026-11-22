@@ -107,3 +107,18 @@ Gemini / Google Cloud TTS (preset voices).
 | `vapbatch` | an earlier in-house batch re-implementation (not included in this release) |
 
 The VAP model, thresholds and the hazard / latency parameters are under `tts.retime` (`vap`, `bc`, `hazard`, `latency`).
+
+## Dialogue language
+
+The pipeline is meant to support several languages; support for English and other languages is planned.
+The prompts, settings and models shipped in this release are for **Japanese**. These are the language-dependent
+parts to replace for another language (not tested in this release):
+
+| Part | What is Japanese-specific now |
+|---|---|
+| Prompts | `scenarios/*.yaml`, `prompts/**/*.yaml` and the system personas `personas/*.yaml` are written in Japanese |
+| Stage 2 targets and checks | the `dialogue.enrich` targets were measured on Japanese conversations; post-processing and quality gates in `pipeline/generate_dialogues.py` assume Japanese text (fillers, sentence-final particles, polite / casual style); reading annotations `dialogue.yomi` / `yomi_ruby` |
+| TTS | Irodori-TTS-v4.1-Small-Yomi is a Japanese model; the default method sets lengths from mora counts (`mora_rate`) and checks readings with a Japanese ASR (kotoba-whisper) and `pipeline/tts_readings.yaml` |
+| MaAI | `tts.retime.lang: jp`; MaAI also provides VAP and backchannel models for other languages (e.g. `en`, `ch`) |
+| Response latency | the `tts.retime.latency` parameters were fitted to Japanese conversations |
+| Voices and personas | the voice banks are Japanese speakers; `age_range` uses the labels Stage 1 writes (`20代`, ...); the persona pool is built from Japanese datasets |

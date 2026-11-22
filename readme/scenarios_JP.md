@@ -10,7 +10,8 @@
 | `scenarios/<パック>.yaml` | Stage1 | LLM に場面を設計させるシステムプロンプト（`system_prompt`）、ジャンルと関係の一覧（`genres`・`relationships`・任意で `settings`） |
 | `prompts/stage2_<パック>.yaml` | Stage2 | 台本を書かせるシステムプロンプトと部品（`system_prompt`・`schema_enriched`・`enriched_section` など） |
 
-対話が日本語なので、プロンプトも日本語で書いてあります。
+この公開版に同梱したプロンプトは日本語で書いてあり、日本語の対話を作ります。ほかの言語については
+[対話の言語](extending_JP.md#対話の言語) を参照してください。
 
 ## 入っているシナリオ
 

@@ -2,6 +2,8 @@
 
 📄 [English](pipeline.md) | [日本語](pipeline_JP.md)
 
+The prompts, settings and models shipped in this release are for Japanese dialogues; see [Dialogue language](extending.md#dialogue-language).
+
 ```
 configs/<scenario>.yaml
    │
@@ -62,10 +64,10 @@ behaviors of conversation (turn-taking, backchannels, nodding) from two-channel 
 The synthesized utterances are placed one after another (`MaaiRetimer.plan`):
 
 - At every boundary the confirmed timeline of the last `context_len_sec` (20 s, both channels) plus a short
-  silence probe is fed to the VAP model (`lang: jp`, `frame_rate: 12.5`).
+  silence probe is fed to the VAP model (`lang: jp` in the shipped configs, `frame_rate: 12.5`).
 - The start of the next utterance is drawn from a hazard function over the predicted turn-shift probability
-  `p_now` (`tts.retime.hazard`), and a human response-latency model (`tts.retime.latency`, fitted to Japanese
-  conversation) shapes gaps and short overlaps. Same-speaker continuations use shorter pauses.
+  `p_now` (`tts.retime.hazard`), and a human response-latency model (`tts.retime.latency`; the shipped
+  parameters are fitted to Japanese conversation) shapes gaps and short overlaps. Same-speaker continuations use shorter pauses.
 - Backchannels already in the script are placed with the **backchannel model** (`mode: bc`, signal `p_bc`):
   at the peak of the predicted backchannel probability near their intended position.
 - If MaAI cannot decide (e.g. no clear peak), the position from the script is used (`fallback`), and the choice is

@@ -23,7 +23,7 @@ mori_t1,male,,voices/mori/wav/mori_t1.wav,その、そういうの作ってい�
 |---|---|---|
 | `id` | yes | unique id, `<speaker>_t<N>` (takes of the same speaker share the prefix) |
 | `gender` | yes | `male` / `female` — matched with the speaker's gender in the script |
-| `age_range` | no | `20代`, `30代`, ... (Japanese age ranges as written by Stage 1); empty = matches any age |
+| `age_range` | no | `20代`, `30代`, ... (the age-range labels Stage 1 writes); empty = matches any age |
 | `audio_path` | yes | path relative to the repository root |
 | `text` | no | transcript of the clip (not used by the default Irodori method; used by some other engines) |
 | other columns | no | free metadata (`restore`, `speech_db`, `sd_snr_db`, `f0_span` are informational) |

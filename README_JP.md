@@ -2,7 +2,7 @@
 <p align="center">MaAI-Synth</p>
 </h1>
 
-<p align="center"><b>ターンテイキング・声の重なり・相槌</b>まで含めた<b>自然な日本語の音声対話</b>を<br>
+<p align="center"><b>ターンテイキング・声の重なり・相槌</b>まで含めた<b>自然な音声対話</b>を<br>
 一気通貫で合成するパイプライン — LLM で台本 → TTS → <a href="https://github.com/MaAI-Kyoto/MaAI">MaAI</a> でタイミング</p>
 <p align="center">
 📄 README: <a href="README.md">English</a> | <a href="README_JP.md">Japanese (日本語)</a>
@@ -10,7 +10,7 @@
 🎧 サンプルをすべて聴く: <a href="https://maai-kyoto.github.io/MaAI-Synth/">https://maai-kyoto.github.io/MaAI-Synth/</a>
 </p>
 
-<b>MaAI-Synth</b> は、日本語の2人の音声対話を、場面の設計から最終的なステレオ音声まで自動で作ります。
+<b>MaAI-Synth</b> は、2人の音声対話を、場面の設計から最終的なステレオ音声まで自動で作ります。
 LLM が場面と台本を書き（フィラー・終助詞・短いターンを織り込み、品質ゲートで検査）、ボイスクローン型の TTS が
 各発話を指定した話者の声で読み上げ、<a href="https://github.com/MaAI-Kyoto/MaAI"><b>MaAI</b></a> が
 <i>いつ</i>話し始めるか・どこに相槌を入れるかを決めます。台本を順に読み上げただけの音声ではなく、実際の会話に近い
@@ -164,6 +164,8 @@ ls data/ft_v1/audio/maai_ref/                # ステレオ FLAC・48 kHz（ch0 
   `configs/base.yaml` の `model`・`llm.base_urls`・`tts.refine.base_urls` を変えます。
 - **TTS** — TTS の方式は `tts_presets/` の YAML で、`tts.engine` で選びます。新しいエンジンは HTTP サーバ
   （`POST /v1/audio/speech`）か `pipeline/generate_tts.py` の合成クラスとして足せます。
+- **言語** — この公開版に同梱したプロンプト・設定・モデルは日本語用です。英語やほかの言語への対応を予定しています。
+  言語に依存する部分は [readme/extending_JP.md](readme/extending_JP.md#対話の言語) にまとめています。
 
 > [!IMPORTANT]
 > **替える前に利用規約を確認してください。** API で提供される LLM・TTS には、出力を生成 AI モデルの学習に使うことを

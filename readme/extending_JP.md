@@ -102,3 +102,18 @@ Gemini / Google Cloud TTS（プリセットの声）。
 | `vapbatch` | 以前の自前の一括推論の再実装（この公開版には入れていない） |
 
 VAP モデル・しきい値・ハザードと応答遅れのパラメータは `tts.retime` の下（`vap`・`bc`・`hazard`・`latency`）にあります。
+
+## 対話の言語
+
+パイプラインは複数の言語で使えるようにすることを目指しています（英語やほかの言語への対応を予定しています）。
+この公開版に同梱したプロンプト・設定・モデルは**日本語用**です。ほかの言語で使うときに差し替える、言語に依存する部分は
+次のとおりです（この公開版では確認していません）。
+
+| 部分 | いま日本語に依存しているところ |
+|---|---|
+| プロンプト | `scenarios/*.yaml`・`prompts/**/*.yaml`・システム側の人物設定 `personas/*.yaml` は日本語で書いてある |
+| Stage2 の目標値と検査 | `dialogue.enrich` の目標値は日本語の会話で測ったもの。`pipeline/generate_dialogues.py` の後処理と品質ゲートは日本語の文を前提にしている（フィラー・終助詞・敬語とタメ口）。読みの注記 `dialogue.yomi`・`yomi_ruby` |
+| TTS | Irodori-TTS-v4.1-Small-Yomi は日本語のモデル。既定の方式は長さをモーラ数から決め（`mora_rate`）、読みを日本語の ASR（kotoba-whisper）と `pipeline/tts_readings.yaml` で検査する |
+| MaAI | `tts.retime.lang: jp`。MaAI にはほかの言語の VAP・相槌モデルもある（`en`・`ch` など） |
+| 応答の遅れ | `tts.retime.latency` の値は日本語の会話に当てはめたもの |
+| 声と人物 | 声バンクは日本語の話者。`age_range` は Stage1 が書く表記（`20代` …）。人物カードの母集団は日本語のデータセットから作る |

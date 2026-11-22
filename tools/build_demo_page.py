@@ -169,7 +169,7 @@ def main() -> None:
     ap.add_argument("--timeline-sec", type=float, default=0.0,
                     help="draw only the first N seconds (0 = whole dialogue)")
     ap.add_argument("--title", default="MaAI-Synth — synthesized spoken dialogues")
-    ap.add_argument("--subtitle", default="Japanese two-party spoken dialogues generated end-to-end: LLM scripts → TTS → turn-taking and backchannel timing by MaAI.")
+    ap.add_argument("--subtitle", default="Two-party spoken dialogues generated end-to-end: LLM scripts → TTS → turn-taking and backchannel timing by MaAI.")
     ap.add_argument("--sys-name", default="Inoue")
     ap.add_argument("--usr-name", default="Mori")
     args = ap.parse_args()
