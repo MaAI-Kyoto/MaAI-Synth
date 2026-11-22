@@ -60,8 +60,7 @@ class LaughHeadTests(unittest.TestCase):
 class YomiCommonTests(unittest.TestCase):
     def test_every_pack_has_yomi_prompt(self):
         for f in ("prompts/stage2_general.yaml", "prompts/stage2_general_gemma.yaml",
-                  "prompts/stage2_first_meeting.yaml", "prompts/stage2_customer_service.yaml",
-                  "prompts/stage2_customer_service_persona.yaml"):
+                  "prompts/stage2_first_meeting.yaml"):
             self.assertIn("読み付け係", load_prompt_pack(f).yomi_prompt, f)
 
     def test_compound_kata_hou_rejected(self):

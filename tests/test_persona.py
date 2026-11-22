@@ -45,7 +45,7 @@ def _stage1(ms, seed=0):
 def test_shipped_personas_load():
     # 同梱のファイルは読めること（未知の項目・YAML の崩れが無い）
     files = sorted((ROOT / "personas").glob("*.yaml"))
-    assert {f.stem for f in files} >= {"inoue", "inoue_ft_v5", "inoue_ft_v6_002", "inoue_qa_1"}
+    assert {f.stem for f in files} >= {"inoue_ft_v5", "inoue_ft_v6_002", "inoue_qa_1"}
     for f in files:
         load_persona({"persona_file": str(f)})
 

@@ -29,4 +29,4 @@ python tools/build_partner_personas.py \
 `real_persona_chat/interlocutors.json`. The pool has 2,000 cards per gender × age group (20s–70s).
 If you redistribute the pool or data generated with it, follow both licenses (attribution; share-alike for RealPersonaChat).
 
-Scenarios without persona cards (`ft_v1`, `ft_sil_v1`, `ft_5min_v1`, `cs_v1`, `main_v1`, `tri_ft_v1`) do not need the pool.
+Scenarios without persona cards (`ft_v1`, `ft_sil_v1`, `ft_5min_v1`, `main_v1`, `tri_ft_v1`) do not need the pool.

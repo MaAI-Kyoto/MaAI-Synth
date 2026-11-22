@@ -27,7 +27,6 @@ TITLES = {  # scenario name -> (English title, Japanese title)
     "al_v1": ("Attentive listening", "傾聴（ユーザが話し、システムが聞き役）"),
     "rp_v1": ("Overlapping speech", "声が重なる場面（割り込み・同時発話など）"),
     "qa_v1": ("Question answering", "質問応答（ユーザが質問し、システムが答える）"),
-    "cs_v1": ("Customer service", "接客"),
     "main_v1": ("General conversation", "いろいろな場面の会話"),
     "tri_ft_v1": ("Three-party first meeting", "三人の初対面"),
 }

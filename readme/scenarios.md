@@ -25,7 +25,6 @@ The prompts shipped in this release are written in Japanese and generate Japanes
 | `al_v1` | `al_v1.yaml` | `stage2_al.yaml` | `topic_plan.style: al` (episodes, listener reactions), gate `al_shape` |
 | `rp_v1` | `first_meeting_v2.yaml` | `stage2_first_meeting.yaml` | `topic_plan.style: rp`: overlap scenes inserted after generation (interruption, simultaneous start, collaborative completion ...) |
 | `qa_v1` | `qa_v1.yaml` | `stage2_qa.yaml` | `topic_plan.style: qa` (question kinds, answer styles), gate `qa_shape` |
-| `cs_v1` | `customer_service_persona.yaml` | `stage2_customer_service_persona.yaml` | the system side is a staff member (`personas/inoue.yaml`) |
 | `main_v1` | `general.yaml` | `stage2_general_gemma.yaml` | varied settings and relationships |
 | `tri_ft_v1` | `tri/first_meeting.yaml` | `tri/stage2_first_meeting.yaml` | three speakers; run with `pipeline/main_tri.py` / `pipeline/generate_tts_tri.py` |
 
@@ -66,3 +65,14 @@ Useful knobs (all in the config):
 Stage 1 and/or Stage 2 (`pipeline/persona.py`). To build a dataset for your own system persona, write a new file with the same
 keys and set `metadata.main_speaker.persona_file` (or a list in `persona_files`, one is drawn per dialogue).
 Facts written in a persona tend to appear in many dialogues; do not write anything you do not want to be said.
+
+How to write a persona file:
+
+- Allowed keys: `personality`, `speech_style`, `background`, `habits`, `avoid`, `disfluency` (any other key is an error).
+  `disfluency` (hesitations, fillers) is given to Stage 2 only. Unused keys can be left empty; a file whose keys are
+  all empty is the same as no persona.
+- Name, gender, age and role go into `metadata.main_speaker` in the config, not into the persona file.
+- Values can be one line or a `|` block; line breaks are joined in the prompt.
+- Write *tendencies* of personality, values and speech. Concrete lines of dialogue get copied into every dialogue,
+  and numeric instructions ("use fillers N times") are mostly ignored by the LLM.
+- An occupation or workplace in the persona can conflict with scenarios that vary the role and situation per dialogue.

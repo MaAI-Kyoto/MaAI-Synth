@@ -548,7 +548,7 @@ long_utt_free_user: 話が乗ったところでは、読点で区切りながら
 
 # ── 校閲パス（dialogue.proofread。2026-10-03 追加）──────────────────────
 # 生成と後処理が済んだ台本を LLM がもう一度読み、日本語として壊れた発話と噛み合わない
-# 応答だけを直す（generate_dialogues.proofread_dialogue）。接客版（stage2_customer_service.yaml）
+# 応答だけを直す（generate_dialogues.proofread_dialogue）。接客版（この公開版には含めていない）
 # の校閲は担当者の敬語の直しが中心で初対面には合わないので、初対面用に書いた。
 # きっかけ: output_ft_v1_gemma_inoue_002「戦場。あははそれは相当な忙しさそうです。」。
 # ★フィラー・くだけた言い方・笑い声・読点の少なさは Stage2 で意図して作っているので、

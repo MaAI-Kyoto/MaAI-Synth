@@ -25,7 +25,6 @@
 | `al_v1` | `al_v1.yaml` | `stage2_al.yaml` | `topic_plan.style: al`（出来事・聞き手の反応）・ゲート `al_shape` |
 | `rp_v1` | `first_meeting_v2.yaml` | `stage2_first_meeting.yaml` | `topic_plan.style: rp`: 生成後に重なりの場面を入れる（割り込み・同時に話し始める・言葉の引き取り など） |
 | `qa_v1` | `qa_v1.yaml` | `stage2_qa.yaml` | `topic_plan.style: qa`（質問の種類・答え方）・ゲート `qa_shape` |
-| `cs_v1` | `customer_service_persona.yaml` | `stage2_customer_service_persona.yaml` | システム側が担当者（`personas/inoue.yaml`） |
 | `main_v1` | `general.yaml` | `stage2_general_gemma.yaml` | さまざまな場面と間柄 |
 | `tri_ft_v1` | `tri/first_meeting.yaml` | `tri/stage2_first_meeting.yaml` | 3人・`pipeline/main_tri.py` / `pipeline/generate_tts_tri.py` で実行 |
 
@@ -64,3 +63,13 @@
 自分のシステムの人物でデータを作るときは、同じ項目で新しいファイルを書き、`metadata.main_speaker.persona_file`
 （または `persona_files` のリスト。対話ごとに1つ引く）に設定します。人物設定に書いた事実は多くの対話に出てくるので、
 言わせたくないことは書かないでください。
+
+人物設定のファイルの書き方:
+
+- 使える項目は `personality`・`speech_style`・`background`・`habits`・`avoid`・`disfluency` だけです（ほかのキーはエラー）。
+  `disfluency`（言いよどみ・フィラー）は Stage2 にだけ渡します。使わない項目は空でよく、すべて空ならペルソナ無しと同じです。
+- 名前・性別・年代・役割は人物設定ではなく、config の `metadata.main_speaker` に書きます。
+- 値は1行でも `|` のブロックでもかまいません。折り返しはプロンプトではつなげられます。
+- 性格・価値観・口調の「傾向」を書いてください。具体的な台詞を書くと全対話で同じ台詞が繰り返され、「フィラーを○回」の
+  ような数の指示は LLM がほぼ従いません。
+- 職業・勤め先を書くと、対話ごとに役割・場面を変えるシナリオとぶつかることがあります。

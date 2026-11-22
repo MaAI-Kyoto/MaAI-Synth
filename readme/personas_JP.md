@@ -28,4 +28,4 @@ python tools/build_partner_personas.py \
 母集団は性別×年代（20〜70代）ごとに 2,000 枚です。母集団やそれで作ったデータを再配布するときは、両方のライセンス
 （表示・RealPersonaChat の継承）に従ってください。
 
-人物カードを使わないシナリオ（`ft_v1`・`ft_sil_v1`・`ft_5min_v1`・`cs_v1`・`main_v1`・`tri_ft_v1`）では母集団は要りません。
+人物カードを使わないシナリオ（`ft_v1`・`ft_sil_v1`・`ft_5min_v1`・`main_v1`・`tri_ft_v1`）では母集団は要りません。

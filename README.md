@@ -44,7 +44,7 @@ GitHub cannot play audio inside a README — click **▶ Listen** to open the pl
 
 ## 🆕 Update
 
-- First public release: Stage 1–3, 11 scenarios, Gemma 4 + Irodori-TTS-v4.1-Small-Yomi + MaAI (MaaiBatch) by default,
+- First public release: Stage 1–3, 10 scenarios, Gemma 4 + Irodori-TTS-v4.1-Small-Yomi + MaAI (MaaiBatch) by default,
   voice banks of Inoue and Mori (November 2026)
 
 <br>
@@ -137,13 +137,12 @@ Full instructions (environments, multiple GPUs, troubleshooting): [readme/setup.
 | `configs/al_v1.yaml` | Attentive listening | the user tells an episode, the system listens |
 | `configs/rp_v1.yaml` | Overlapping speech | interruptions, simultaneous starts, collaborative completions |
 | `configs/qa_v1.yaml` | Question answering | the user asks, the system answers |
-| `configs/cs_v1.yaml` | Customer service | the system is a staff member, the user a customer |
 | `configs/main_v1.yaml` | General conversation | varied situations and relationships |
 | `configs/tri_ft_v1.yaml` | Three-party first meeting | experimental; `pipeline/main_tri.py` / `pipeline/generate_tts_tri.py`, needs ≥ 2 user-side voices |
 
 In every scenario the system side (ch0) is "イノウエ (Inoue)", male, 30s (`metadata.main_speaker`).
 In the first-meeting, listening, overlap and QA scenarios he is a university researcher with a fixed persona
-(`personas/`); in customer service he is the staff member. How to write your own scenario:
+(`personas/`). How to write your own scenario:
 [readme/scenarios.md](readme/scenarios.md).
 
 <br>

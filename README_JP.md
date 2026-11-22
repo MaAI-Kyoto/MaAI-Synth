@@ -42,7 +42,7 @@ GitHub の README の中では音声を再生できないので、**▶ 聴く**
 
 ## 🆕 更新情報
 
-- 初回公開: Stage1〜3・11 シナリオ・既定で Gemma 4 ＋ Irodori-TTS-v4.1-Small-Yomi ＋ MaAI（MaaiBatch）・
+- 初回公開: Stage1〜3・10 シナリオ・既定で Gemma 4 ＋ Irodori-TTS-v4.1-Small-Yomi ＋ MaAI（MaaiBatch）・
   Inoue と Mori のボイスバンク（2026年11月）
 
 <br>
@@ -132,12 +132,11 @@ ls data/ft_v1/audio/maai_ref/                # ステレオ FLAC・48 kHz（ch0 
 | `configs/al_v1.yaml` | 傾聴 | ユーザが出来事を話し、システムが聞き役 |
 | `configs/rp_v1.yaml` | 声が重なる場面 | 割り込み・同時発話・相手の言葉の引き取り |
 | `configs/qa_v1.yaml` | 質問応答 | ユーザが質問し、システムが答える |
-| `configs/cs_v1.yaml` | 接客 | システムが担当者、ユーザが客 |
 | `configs/main_v1.yaml` | いろいろな会話 | さまざまな場面と間柄 |
 | `configs/tri_ft_v1.yaml` | 三人の初対面 | 試験的・`pipeline/main_tri.py` / `pipeline/generate_tts_tri.py`・ユーザ側の声が2人以上必要 |
 
 どのシナリオでもシステム側（ch0）は「イノウエ」（男性・30代）です（`metadata.main_speaker`）。初対面・傾聴・重なり・
-質問応答では人物設定（`personas/`）を固定した大学の研究者、接客では担当者になります。
+質問応答では人物設定（`personas/`）を固定した大学の研究者です。
 シナリオの作り方: [readme/scenarios_JP.md](readme/scenarios_JP.md)
 
 <br>
