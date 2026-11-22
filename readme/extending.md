@@ -2,6 +2,12 @@
 
 📄 [English](extending.md) | [日本語](extending_JP.md)
 
+> [!IMPORTANT]
+> **Check the terms of use before switching.** Many LLM and TTS services offered through an API do not allow their
+> outputs to be used for training generative AI models, and some downloadable models have similar conditions.
+> Because this pipeline makes training data, check the terms of use of every service and model you use, and use
+> them at your own responsibility.
+
 ## LLM
 
 All text generation (Stage 1, Stage 2, the Stage 2 proofreading pass and the Stage 3 backchannel refinement) goes
@@ -28,6 +34,7 @@ tts:
 
 For the OpenAI API: `provider: openai`, remove `base_urls`, set `model` / `text_model` to e.g. `gpt-5-mini`,
 and export `OPENAI_API_KEY`. Costs are tracked with `pricing` (USD per 1M tokens) and stopped at `max_cost_usd`.
+Check whether the API's terms allow using its outputs as training data (see the note at the top).
 
 Notes:
 

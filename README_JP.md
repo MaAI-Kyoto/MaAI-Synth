@@ -165,6 +165,11 @@ ls data/ft_v1/audio/maai_ref/                # ステレオ FLAC・48 kHz（ch0 
 - **TTS** — TTS の方式は `tts_presets/` の YAML で、`tts.engine` で選びます。新しいエンジンは HTTP サーバ
   （`POST /v1/audio/speech`）か `pipeline/generate_tts.py` の合成クラスとして足せます。
 
+> [!IMPORTANT]
+> **替える前に利用規約を確認してください。** API で提供される LLM・TTS には、出力を生成 AI モデルの学習に使うことを
+> 禁じているものが多くあります。配布されているモデルにも同じような条件が付いていることがあります。このパイプラインは
+> 学習用のデータを作るためのものなので、使うサービス・モデルの利用規約を確認のうえ、各自の責任で使ってください。
+
 詳しくは [readme/extending_JP.md](readme/extending_JP.md)。
 
 <br>

@@ -171,6 +171,12 @@ assigned per dialogue by gender and age. See [readme/voice_bank.md](readme/voice
 - **TTS** — a TTS method is a YAML file in `tts_presets/` selected by `tts.engine`.
   New engines plug in as an HTTP server (`POST /v1/audio/speech`) or a synthesizer class in `pipeline/generate_tts.py`.
 
+> [!IMPORTANT]
+> **Check the terms of use before switching.** Many LLM and TTS services offered through an API do not allow their
+> outputs to be used for training generative AI models, and some downloadable models have similar conditions.
+> Because this pipeline makes training data, check the terms of use of every service and model you use, and use
+> them at your own responsibility.
+
 See [readme/extending.md](readme/extending.md).
 
 <br>

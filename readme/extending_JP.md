@@ -2,6 +2,11 @@
 
 📄 [English](extending.md) | [日本語](extending_JP.md)
 
+> [!IMPORTANT]
+> **替える前に利用規約を確認してください。** API で提供される LLM・TTS には、出力を生成 AI モデルの学習に使うことを
+> 禁じているものが多くあります。配布されているモデルにも同じような条件が付いていることがあります。このパイプラインは
+> 学習用のデータを作るためのものなので、使うサービス・モデルの利用規約を確認のうえ、各自の責任で使ってください。
+
 ## LLM
 
 テキスト生成（Stage1・Stage2・Stage2 の校閲・Stage3 の相槌の調整）はすべて OpenAI の Python SDK を通ります
@@ -28,6 +33,7 @@ tts:
 
 OpenAI API なら `provider: openai` にして `base_urls` を消し、`model` / `text_model` を `gpt-5-mini` などにして
 `OPENAI_API_KEY` を設定します。費用は `pricing`（100万トークンあたりの USD）で数え、`max_cost_usd` で止まります。
+その API の出力を学習データに使ってよいかは、利用規約で確かめてください（冒頭の注意を参照）。
 
 注意:
 
