@@ -37,16 +37,16 @@ One JSON object per dialogue:
 
 ```json
 {"id": "6630d4cd-36ff-43df-8fff-bfa421064240", "audio": "6630d4cd-36ff-43df-8fff-bfa421064240.flac",
- "sample_rate": 48000, "channels": 2, "duration_sec": 130.833,
- "channel_speakers": {"0": "イノウエ", "1": "モリ"},
- "voice_prompts": {"モリ": {"voice_id": "mori_t2", "gender": "male", ...}, "イノウエ": {"voice_id": "inoue_t4", ...}},
+ "sample_rate": 48000, "channels": 2, "duration_sec": 131.5,
+ "channel_speakers": {"0": "井上", "1": "森"},
+ "voice_prompts": {"森": {"voice_id": "mori_t2", "gender": "male", ...}, "井上": {"voice_id": "inoue_t4", ...}},
  "segments": [
-   {"start": 0.435, "end": 4.295, "speaker": "モリ", "channel": 1, "type": "speech",
-    "text": "どうも。俺、モリって言います。よろしくお願いします。"},
-   {"start": 4.273, "end": 8.103, "speaker": "イノウエ", "channel": 0, "type": "speech",
-    "text": "はじめまして。イノウエです。こちらこそ、よろしくお願いします。"},
+   {"start": 0.435, "end": 4.315, "speaker": "森", "channel": 1, "type": "speech",
+    "text": "どうも。俺、森って言います。よろしくお願いします。"},
+   {"start": 4.353, "end": 8.293, "speaker": "井上", "channel": 0, "type": "speech",
+    "text": "はじめまして。井上です。こちらこそ、よろしくお願いします。"},
    ...,
-   {"start": 25.916, "end": 26.466, "speaker": "イノウエ", "channel": 0, "type": "backchannel", "text": "はい。"},
+   {"start": 26.474, "end": 26.974, "speaker": "井上", "channel": 0, "type": "backchannel", "text": "うん。"},
    ...]}
 ```
 
