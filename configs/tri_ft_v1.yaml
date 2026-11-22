@@ -1,0 +1,75 @@
+# =============================================================================
+# Scenario: tri_ft_v1 — Three-party first meeting (experimental; needs >= 2 partner voices)
+# =============================================================================
+# Stage 1-2 (LLM -> scripts):  python main_tri.py --config configs/tri_ft_v1.yaml
+# Stage 3   (TTS + MaAI):      python generate_tts_tri.py --config configs/tri_ft_v1.yaml --retime-refine
+# Outputs go to data/tri_ft_v1/ (final audio: data/tri_ft_v1/audio/maai_ref/).
+# Only the settings that differ from configs/base.yaml are listed here.
+# =============================================================================
+extends: base.yaml
+
+log_file: data/tri_ft_v1/generation.log
+cost_log_file: data/tri_ft_v1/cost_log.jsonl
+metadata:
+  num_speakers: 3
+  output_file: data/tri_ft_v1/metadata.jsonl
+  scenario_file: scenarios/tri/first_meeting.yaml
+  trio_mix: {男性3人: 0.2, 男性2人と女性1人: 0.4, 男性1人と女性2人: 0.4, 女性3人: 0.0}
+  main_speaker: {role: 大学の研究者, persona_file: personas/inoue_ft_v5.yaml, persona_vary: ほかの2人・三人の関係・話題（三人が何から話し始め、何で盛り上がるか）}
+  style_mix: {敬語: 0.65, 混合: 0.35}
+  partner_roles:
+    大学生・大学院生: {weight: 12, examples: 大学生、大学院生、専門学校生}
+    会社員（事務・営業・企画）: {weight: 14, examples: 営業職、経理、人事、商社の企画}
+    技術職・IT: {weight: 8, examples: システムエンジニア、Webデザイナー、研究開発職}
+    医療・福祉: {weight: 8, examples: 看護師、介護福祉士、薬剤師、理学療法士}
+    教育・保育: {weight: 7, examples: 小学校教員、保育士、塾講師}
+    販売・接客・サービス: {weight: 9, examples: アパレル店員、美容師、ホテルスタッフ、飲食店の店長}
+    公務員: {weight: 6, examples: 市役所職員、消防士、図書館司書}
+    職人・技能職・農林水産: {weight: 7, examples: 大工、調理師、自動車整備士、農家}
+    自営業・フリーランス: {weight: 7, examples: カフェ経営、ライター、カメラマン、翻訳家}
+    主婦・主夫・パート: {weight: 7, examples: 専業主婦、パート勤務、子育て中の主夫}
+    定年退職した人: {weight: 9, examples: 元教員、元銀行員、元エンジニア}
+    芸術・スポーツ・その他: {weight: 6, examples: 音楽講師、スポーツインストラクター、俳優、僧侶}
+dialogue:
+  min_turns: 30
+  max_turns: 44
+  prompt_file: prompts/tri/stage2_first_meeting.yaml
+  output_file: data/tri_ft_v1/dialogues.jsonl
+  enrich: {filler_ratio: 0.29, filler_cap_ratio: 0.24, filler_floor: 0.1, head_filler_ratio: 0.35, sfp_ratio: 0.27, sfp_cap_ratio: 0.3,
+    ne_cap_per_100: 0.5, comma_span: 24, comma_per_100: 4.0, comma_floor: 2.5, reaction_ratio: 0.3, react_floor: 0.06, monotone_head_cap: 5,
+    comma_thin_seg: 5, echo_fix: true, ne_keep_eval: true, echo_head_cap: 2, ne_reaction_last: true, filler_split: true, echo_total_cap: 3}
+  self_name_max: 1
+  gates: {long_utterance: false}
+  proofread: 2
+voice: {output_file: data/tri_ft_v1/voice_dialogues.jsonl}
+tts:
+  log_file: data/tri_ft_v1/tts.log
+  audio_dir: data/tri_ft_v1/audio
+  manifest_file: data/tri_ft_v1/audio_manifest.jsonl
+  fish_speech: {multiturn: true, reading_normalize: true}
+  retime:
+    repair: {max_speech_overlap: 0.5}
+  refine:
+    ops_dir: data/tri_ft_v1/refine_ops
+    refined_records_file: data/tri_ft_v1/voice_dialogues_refined.jsonl
+    density: {min_bc_per_min: 8.0, max_bc_per_min: 21.0}
+    quality:
+      bc_vocab_mix: {うん: 27, はい: 23, あー: 20, へえ: 8, うんうん: 6.5, ええ: 5, うんうんうん: 4.5, はいはい: 3, はいはいはい: 3}
+tri:
+  retimer: vap
+  turn_order: {min_aba: 0.3, max_cycle_run: 8, min_share: 0.12, retry: 2}
+  addressee: {max_invalid: 0.1}
+  timing:
+    reference_file: reference/teidan_tri.json
+    max_overlap: 0.2
+    fold_range: [0.0, 0.2]
+    overlap_frac: 0.3
+    max_gap: 3.0
+    within_min: 0.15
+    within_max: 1.2
+  group_shapes:
+    全員初対面: {weight: 40, text: 三人とも今日が初対面}
+    1人目が新顔: {weight: 20, text: 2人目と3人目は以前からの知り合いで、1人目だけが今日初めて二人に会う}
+    3人目が新顔: {weight: 20, text: 1人目と2人目は以前からの知り合いで、3人目が今日初めて加わる}
+    2人目が新顔: {weight: 10, text: 1人目と3人目は以前からの知り合いで、2人目が今日初めて加わる}
+    紹介役: {weight: 10, text: 2人目が、互いに初対面の1人目と3人目を引き合わせる（2人目は二人の共通の知り合い）}

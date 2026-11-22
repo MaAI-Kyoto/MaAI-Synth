@@ -1,0 +1,87 @@
+# =============================================================================
+# Scenario: ft_v2 — First meeting v2 (user-side persona cards + topic plans)
+# =============================================================================
+# Stage 1-2 (LLM -> scripts):  python main.py --config configs/ft_v2.yaml
+# Stage 3   (TTS + MaAI):      python generate_tts.py --config configs/ft_v2.yaml --retime-refine
+# Outputs go to data/ft_v2/ (final audio: data/ft_v2/audio/maai_ref/).
+# Only the settings that differ from configs/base.yaml are listed here.
+# =============================================================================
+extends: base.yaml
+
+log_file: data/ft_v2/generation.log
+cost_log_file: data/ft_v2/cost_log.jsonl
+metadata:
+  num_speakers: 2
+  output_file: data/ft_v2/metadata.jsonl
+  scenario_file: scenarios/first_meeting_v2.yaml
+  main_speaker:
+    role: 大学の研究者
+    persona_file: null
+    persona_vary: 相手・話題（二人が何から話し始め、何で盛り上がるか）
+    persona_files: [personas/inoue_ft_v6_002.yaml, personas/inoue_ft_v6_002.yaml, personas/inoue_ft_v6_003.yaml, personas/inoue_ft_v6_004.yaml,
+      personas/inoue_ft_v6_005.yaml]
+  style_mix: {敬語: 0.65, 混合: 0.35}
+  partner_roles:
+    大学生・大学院生: {weight: 12, examples: 大学生、大学院生、専門学校生}
+    会社員（事務・営業・企画）: {weight: 14, examples: 営業職、経理、人事、商社の企画}
+    技術職・IT: {weight: 8, examples: システムエンジニア、Webデザイナー、研究開発職}
+    医療・福祉: {weight: 8, examples: 看護師、介護福祉士、薬剤師、理学療法士}
+    教育・保育: {weight: 7, examples: 小学校教員、保育士、塾講師}
+    販売・接客・サービス: {weight: 9, examples: アパレル店員、美容師、ホテルスタッフ、飲食店の店長}
+    公務員: {weight: 6, examples: 市役所職員、消防士、図書館司書}
+    職人・技能職・農林水産: {weight: 7, examples: 大工、調理師、自動車整備士、農家}
+    自営業・フリーランス: {weight: 7, examples: カフェ経営、ライター、カメラマン、翻訳家}
+    主婦・主夫・パート: {weight: 7, examples: 専業主婦、パート勤務、子育て中の主夫}
+    定年退職した人: {weight: 9, examples: 元教員、元銀行員、元エンジニア}
+    芸術・スポーツ・その他: {weight: 6, examples: 音楽講師、スポーツインストラクター、俳優、僧侶}
+  # The bundled user-side voice bank (Mori) is male only, so user-side speakers are male for now.
+  # After adding female voices (voices/<bank>/), restore the original mix: {男女: 0.5, 男性同士: 0.5, 女性同士: 0.0}
+  pair_mix: {男女: 0.0, 男性同士: 1.0, 女性同士: 0.0}
+  topic_plan:
+    seed: 1
+    topics: {2: 0.45, 3: 0.55}
+    opening_mix: {話題から: 0.4, 近況から: 0.25, 住まい・出身から: 0.2, 仕事・学校から: 0.15}
+    card_hobby: 0.5
+    greeting_mix: {はじめまして: 0.3, よろしく: 0.25, こんにちは: 0.15, ひと言: 0.15, 名乗らない: 0.15}
+    kinkyo_mix: {道のり: 1.0, 週末: 1.0, 忙しさ: 1.0, 食べたもの: 1.0, 買ったもの: 1.0, 天気: 0.5}
+    closing_mix: {締めない: 0.4, 短く: 0.3, 話題に触れて: 0.3}
+    naming_mix: {両方: 0.45, 片方だけ: 0.3, なし: 0.25}
+  partner_persona:
+    pool_file: personas/partner_pool.jsonl
+    use_surname: true
+    seed: 1
+    age_mix:
+      male: {20代: 1.0, 30代: 1.0, 40代: 1.0, 50代: 0.7, 60代: 0.7, 70代: 1.0}
+      female: {20代: 1.0, 30代: 1.0, 40代: 1.0, 50代: 1.0, 60代: 1.0, 70代: 1.0}
+dialogue:
+  min_turns: 24
+  max_turns: 38
+  prompt_file: prompts/stage2_first_meeting.yaml
+  output_file: data/ft_v2/dialogues.jsonl
+  enrich: {filler_ratio: 0.29, filler_cap_ratio: 0.24, filler_floor: 0.1, head_filler_ratio: 0.35, sfp_ratio: 0.27, sfp_cap_ratio: 0.3,
+    ne_cap_per_100: 0.5, comma_span: 24, comma_per_100: 4.0, comma_floor: 2.5, reaction_ratio: 0.1, react_floor: 0.04, monotone_head_cap: 5,
+    comma_thin_seg: 5, echo_fix: true, ne_keep_eval: true, echo_head_cap: 2, ne_reaction_last: true, filler_split: true, echo_total_cap: 3,
+    short_turn_ratio: 0.35, short_turn_floor: 0.3, question_ratio_cap: 0.12, ack_head_cap: 4, ack_phrase_cap: 2, react_vocab_human: true,
+    vary_closing: true, shift_mark_cap: 1, stock_word_swap: false, echo_replace_once: true, long_turn_ratio: 0.1, main_echo_cap: 1,
+    main_react_fold: 3, flag_rewrite: true, calm_word_cap: 2, main_eval_cap: 0}
+  self_name_max: 1
+  gates: {long_utterance: false}
+  proofread: 2
+voice: {output_file: data/ft_v2/voice_dialogues.jsonl}
+tts:
+  log_file: data/ft_v2/tts.log
+  audio_dir: data/ft_v2/audio
+  manifest_file: data/ft_v2/audio_manifest.jsonl
+  fish_speech: {multiturn: false, reading_normalize: true}
+  retime:
+    repair: {max_speech_overlap: 0.5}
+  refine:
+    ops_dir: data/ft_v2/refine_ops
+    refined_records_file: data/ft_v2/voice_dialogues_refined.jsonl
+    density: {min_bc_per_min: 6.0, max_bc_per_min: 15.0}
+    quality:
+      bc_vocab_mix: {うん: 27, はい: 23, あー: 20, へえ: 8, うんうん: 6.5, ええ: 5, うんうんうん: 4.5, はいはい: 3, はいはいはい: 3}
+  lead_in:
+    sec: [0.4, 6.0]
+  tail_pad:
+    sec: [1.0, 6.0]

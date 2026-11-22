@@ -1,0 +1,20 @@
+# ==========================================================================
+# TTS method "example-http-tts": any TTS wrapped as an HTTP server (template for new engines)
+# ==========================================================================
+# 1. Implement synthesize() in tools/tts_server_template.py (or write your own server with the same API)
+#    and start it:  python tools/tts_server_template.py --port 8990
+# 2. Use this method:  tts: {engine: example-http-tts, fish_speech: {base_url: http://localhost:8990}}
+# Stage 3 sends one request per utterance (text + one reference clip of the speaker as a WAV data URL)
+# and runs the rest of the pipeline (reading check, MaAI placement, backchannel refinement) unchanged.
+# Copy this file under a new name for your engine and tune it (see readme/extending.md).
+# ==========================================================================
+engine: fish_speech
+fish_speech:
+  backend: moss_tts        # generic "one request per utterance" client (generate_tts.MossTtsSynth)
+  vllm_model: my-tts       # sent as "model" in the request
+  checkpoint: my-tts
+  concurrency: 4           # parallel requests per Stage 3 worker
+  moss_mode: clone
+  bwe: false               # bandwidth extension of low-rate output (off)
+  moss_commas: keep
+audio_format: flac

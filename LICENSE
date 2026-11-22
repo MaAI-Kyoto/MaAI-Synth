@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 MaAI-Kyoto
+Copyright (c) 2026 MaAI Development Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This license covers only the source code. The voice data in voices/ and the
+audio samples in docs/ are covered by voices/LICENSE.md. Data generated with
+this software (dialogue scripts, audio, transcripts) is subject to the licenses
+and terms of use of the models and data used to generate it (LLM, TTS model,
+voice banks, persona datasets); see THIRD_PARTY.md.

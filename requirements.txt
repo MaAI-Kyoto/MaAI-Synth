@@ -1,0 +1,8 @@
+# Stage 1-2 (LLM -> scripts). Python 3.10+. No GPU needed on this side.
+openai>=1.40          # client for the OpenAI-compatible LLM server
+pyyaml>=6.0           # configs, scenarios, prompts
+pyopenjtalk-plus      # readings for the TTS input (dialogue.yomi / yomi_ruby)
+numpy
+
+# tests
+pytest>=7.0

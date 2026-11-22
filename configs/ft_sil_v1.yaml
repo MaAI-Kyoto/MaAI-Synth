@@ -1,0 +1,71 @@
+# =============================================================================
+# Scenario: ft_sil_v1 — First meeting + long user-side silences
+# =============================================================================
+# Stage 1-2 (LLM -> scripts):  python main.py --config configs/ft_sil_v1.yaml
+# Stage 3   (TTS + MaAI):      python generate_tts.py --config configs/ft_sil_v1.yaml --retime-refine
+# Outputs go to data/ft_sil_v1/ (final audio: data/ft_sil_v1/audio/maai_ref/).
+# Only the settings that differ from configs/base.yaml are listed here.
+# =============================================================================
+extends: base.yaml
+
+log_file: data/ft_sil_v1/generation.log
+cost_log_file: data/ft_sil_v1/cost_log.jsonl
+metadata:
+  num_speakers: 2
+  output_file: data/ft_sil_v1/metadata.jsonl
+  scenario_file: scenarios/first_meeting.yaml
+  main_speaker: {role: 大学の研究者, persona_file: personas/inoue_ft_v5.yaml, persona_vary: 相手・話題（二人が何から話し始め、何で盛り上がるか）}
+  style_mix: {敬語: 0.65, 混合: 0.35}
+  partner_roles:
+    大学生・大学院生: {weight: 12, examples: 大学生、大学院生、専門学校生}
+    会社員（事務・営業・企画）: {weight: 14, examples: 営業職、経理、人事、商社の企画}
+    技術職・IT: {weight: 8, examples: システムエンジニア、Webデザイナー、研究開発職}
+    医療・福祉: {weight: 8, examples: 看護師、介護福祉士、薬剤師、理学療法士}
+    教育・保育: {weight: 7, examples: 小学校教員、保育士、塾講師}
+    販売・接客・サービス: {weight: 9, examples: アパレル店員、美容師、ホテルスタッフ、飲食店の店長}
+    公務員: {weight: 6, examples: 市役所職員、消防士、図書館司書}
+    職人・技能職・農林水産: {weight: 7, examples: 大工、調理師、自動車整備士、農家}
+    自営業・フリーランス: {weight: 7, examples: カフェ経営、ライター、カメラマン、翻訳家}
+    主婦・主夫・パート: {weight: 7, examples: 専業主婦、パート勤務、子育て中の主夫}
+    定年退職した人: {weight: 9, examples: 元教員、元銀行員、元エンジニア}
+    芸術・スポーツ・その他: {weight: 6, examples: 音楽講師、スポーツインストラクター、俳優、僧侶}
+  # The bundled user-side voice bank (Mori) is male only, so user-side speakers are male for now.
+  # After adding female voices (voices/<bank>/), restore the original mix: {男女: 0.5, 男性同士: 0.5, 女性同士: 0.0}
+  pair_mix: {男女: 0.0, 男性同士: 1.0, 女性同士: 0.0}
+dialogue:
+  min_turns: 24
+  max_turns: 38
+  prompt_file: prompts/stage2_first_meeting_sil.yaml
+  output_file: data/ft_sil_v1/dialogues.jsonl
+  enrich: {filler_ratio: 0.29, filler_cap_ratio: 0.24, filler_floor: 0.1, head_filler_ratio: 0.35, sfp_ratio: 0.27, sfp_cap_ratio: 0.3,
+    ne_cap_per_100: 0.5, comma_span: 24, comma_per_100: 4.0, comma_floor: 2.5, reaction_ratio: 0.3, react_floor: 0.06, monotone_head_cap: 5,
+    comma_thin_seg: 5, echo_fix: true, ne_keep_eval: true, echo_head_cap: 2, ne_reaction_last: true, filler_split: true, echo_total_cap: 3}
+  self_name_max: 1
+  gates: {long_utterance: false}
+  proofread: 2
+  silence:
+    count: [2, 3]
+    sec: [2.0, 8.0]
+    max_prompt: 1
+    prompt_ratio: 0.3
+    prompt_sec_min: 3.0
+    prompt_retries: 2
+    jitter_sec: 0.5
+voice: {output_file: data/ft_sil_v1/voice_dialogues.jsonl}
+tts:
+  log_file: data/ft_sil_v1/tts.log
+  audio_dir: data/ft_sil_v1/audio
+  manifest_file: data/ft_sil_v1/audio_manifest.jsonl
+  fish_speech: {multiturn: false, reading_normalize: true}
+  retime:
+    repair: {max_speech_overlap: 0.5}
+  refine:
+    ops_dir: data/ft_sil_v1/refine_ops
+    refined_records_file: data/ft_sil_v1/voice_dialogues_refined.jsonl
+    density: {min_bc_per_min: 6.0, max_bc_per_min: 15.0}
+    quality:
+      bc_vocab_mix: {うん: 27, はい: 23, あー: 20, へえ: 8, うんうん: 6.5, ええ: 5, うんうんうん: 4.5, はいはい: 3, はいはいはい: 3}
+  lead_in:
+    sec: [0.4, 6.0]
+  tail_pad:
+    sec: [1.0, 6.0]

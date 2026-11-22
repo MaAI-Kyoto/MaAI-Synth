@@ -1,0 +1,282 @@
+[
+ {
+  "key": "ft_v1_01",
+  "scenario": "ft_v1",
+  "id": "6073eb59-fa8c-48bd-b230-dfcff252c801",
+  "duration_sec": 126.771,
+  "segments": 45,
+  "backchannels": 11
+ },
+ {
+  "key": "ft_v1_02",
+  "scenario": "ft_v1",
+  "id": "d8819a36-847a-44db-a7c2-cefff0fdb1f8",
+  "duration_sec": 148.257,
+  "segments": 45,
+  "backchannels": 11
+ },
+ {
+  "key": "ft_v1_03",
+  "scenario": "ft_v1",
+  "id": "6630d4cd-36ff-43df-8fff-bfa421064240",
+  "duration_sec": 130.833,
+  "segments": 41,
+  "backchannels": 9
+ },
+ {
+  "key": "ft_v1_04",
+  "scenario": "ft_v1",
+  "id": "0b5943ce-7b64-4d55-84bf-c03240e726da",
+  "duration_sec": 151.396,
+  "segments": 45,
+  "backchannels": 11
+ },
+ {
+  "key": "ft_v1_05",
+  "scenario": "ft_v1",
+  "id": "c3daf201-fdff-4b74-9e12-6e0b1603f12a",
+  "duration_sec": 153.175,
+  "segments": 40,
+  "backchannels": 6
+ },
+ {
+  "key": "ft_v2_01",
+  "scenario": "ft_v2",
+  "id": "ddedbfe1-7cf6-4836-9e6f-dbd18c2039b9",
+  "duration_sec": 125.787,
+  "segments": 43,
+  "backchannels": 11
+ },
+ {
+  "key": "ft_v2_02",
+  "scenario": "ft_v2",
+  "id": "2f96137e-f1c8-457f-8a74-2fa22057a283",
+  "duration_sec": 102.366,
+  "segments": 37,
+  "backchannels": 4
+ },
+ {
+  "key": "ft_v2_03",
+  "scenario": "ft_v2",
+  "id": "9f5ac34b-ef3e-4765-9e37-99cc90ebf6a5",
+  "duration_sec": 135.855,
+  "segments": 46,
+  "backchannels": 12
+ },
+ {
+  "key": "ft_v2_04",
+  "scenario": "ft_v2",
+  "id": "734470d9-dcb7-44ee-bf6a-9eb5de02ad9e",
+  "duration_sec": 139.345,
+  "segments": 45,
+  "backchannels": 14
+ },
+ {
+  "key": "ft_v2_05",
+  "scenario": "ft_v2",
+  "id": "def42f8f-866a-4caf-9ecb-9f21b34748ea",
+  "duration_sec": 108.621,
+  "segments": 39,
+  "backchannels": 8
+ },
+ {
+  "key": "ft_sil_v1_01",
+  "scenario": "ft_sil_v1",
+  "id": "cac71eec-b2b2-49cd-a9cb-ce81076a6494",
+  "duration_sec": 151.917,
+  "segments": 47,
+  "backchannels": 12
+ },
+ {
+  "key": "ft_sil_v1_02",
+  "scenario": "ft_sil_v1",
+  "id": "61609bb3-3301-42b6-93e1-9d83b2e9fd52",
+  "duration_sec": 159.327,
+  "segments": 46,
+  "backchannels": 11
+ },
+ {
+  "key": "ft_sil_v1_03",
+  "scenario": "ft_sil_v1",
+  "id": "5ef5a1c2-22e5-4239-bd95-5b6096723a83",
+  "duration_sec": 129.093,
+  "segments": 40,
+  "backchannels": 5
+ },
+ {
+  "key": "ft_sil_v1_04",
+  "scenario": "ft_sil_v1",
+  "id": "f021fed6-ec6a-4c8b-af71-994139adafa4",
+  "duration_sec": 173.38,
+  "segments": 49,
+  "backchannels": 14
+ },
+ {
+  "key": "ft_sil_v1_05",
+  "scenario": "ft_sil_v1",
+  "id": "f52331c5-b34d-428c-9eec-f6366e2a2a31",
+  "duration_sec": 160.85,
+  "segments": 47,
+  "backchannels": 12
+ },
+ {
+  "key": "ft_sil_v2_01",
+  "scenario": "ft_sil_v2",
+  "id": "4fae2d2f-5ddf-49f7-9313-0f23921f68c8",
+  "duration_sec": 127.685,
+  "segments": 40,
+  "backchannels": 5
+ },
+ {
+  "key": "ft_sil_v2_02",
+  "scenario": "ft_sil_v2",
+  "id": "3aafbdc6-9f18-4377-8064-2e40620a949d",
+  "duration_sec": 146.98,
+  "segments": 48,
+  "backchannels": 9
+ },
+ {
+  "key": "ft_sil_v2_03",
+  "scenario": "ft_sil_v2",
+  "id": "bad3e4f4-4b07-4532-8304-1870c90847b4",
+  "duration_sec": 143.44,
+  "segments": 42,
+  "backchannels": 6
+ },
+ {
+  "key": "ft_sil_v2_04",
+  "scenario": "ft_sil_v2",
+  "id": "c9571f5a-a261-4d8a-97fa-5ede1d3494f4",
+  "duration_sec": 122.825,
+  "segments": 38,
+  "backchannels": 6
+ },
+ {
+  "key": "ft_sil_v2_05",
+  "scenario": "ft_sil_v2",
+  "id": "9be22cdf-beb3-4bf6-b59f-385df9ff8c0d",
+  "duration_sec": 116.27,
+  "segments": 40,
+  "backchannels": 8
+ },
+ {
+  "key": "al_v1_01",
+  "scenario": "al_v1",
+  "id": "11ec3c5d-4fb1-4da2-b3d4-6cfe9142ce19",
+  "duration_sec": 101.657,
+  "segments": 39,
+  "backchannels": 15
+ },
+ {
+  "key": "al_v1_02",
+  "scenario": "al_v1",
+  "id": "42e5f466-4051-4283-a9a5-64bf63f9393e",
+  "duration_sec": 112.205,
+  "segments": 39,
+  "backchannels": 16
+ },
+ {
+  "key": "al_v1_03",
+  "scenario": "al_v1",
+  "id": "5a27c416-d594-4836-a77d-f81ce34c81aa",
+  "duration_sec": 84.126,
+  "segments": 38,
+  "backchannels": 12
+ },
+ {
+  "key": "al_v1_04",
+  "scenario": "al_v1",
+  "id": "e0f1846d-fd43-422b-b330-7c072a2df072",
+  "duration_sec": 144.393,
+  "segments": 43,
+  "backchannels": 18
+ },
+ {
+  "key": "al_v1_05",
+  "scenario": "al_v1",
+  "id": "e1effffb-a60f-4864-9901-f4cb4278153c",
+  "duration_sec": 115.513,
+  "segments": 41,
+  "backchannels": 17
+ },
+ {
+  "key": "rp_v1_01",
+  "scenario": "rp_v1",
+  "id": "ce2051a5-8f40-48be-ac71-d6d97ef75d36",
+  "duration_sec": 145.285,
+  "segments": 51,
+  "backchannels": 11
+ },
+ {
+  "key": "rp_v1_02",
+  "scenario": "rp_v1",
+  "id": "a58c9cdc-3823-4181-9afb-339a7b8b0f80",
+  "duration_sec": 142.093,
+  "segments": 50,
+  "backchannels": 10
+ },
+ {
+  "key": "rp_v1_03",
+  "scenario": "rp_v1",
+  "id": "3754078c-bac8-431d-bd0f-f4af4ee2af85",
+  "duration_sec": 137.923,
+  "segments": 46,
+  "backchannels": 5
+ },
+ {
+  "key": "rp_v1_04",
+  "scenario": "rp_v1",
+  "id": "7f2906de-13bb-4943-a3f7-11149b1f5cb5",
+  "duration_sec": 137.899,
+  "segments": 49,
+  "backchannels": 7
+ },
+ {
+  "key": "rp_v1_05",
+  "scenario": "rp_v1",
+  "id": "c852efb7-e595-4e9f-b491-ffcb3926893e",
+  "duration_sec": 132.328,
+  "segments": 49,
+  "backchannels": 10
+ },
+ {
+  "key": "qa_v1_01",
+  "scenario": "qa_v1",
+  "id": "7320ad9d-ecb4-4ab1-85f1-bdc5474d8f75",
+  "duration_sec": 145.677,
+  "segments": 50,
+  "backchannels": 14
+ },
+ {
+  "key": "qa_v1_02",
+  "scenario": "qa_v1",
+  "id": "7729bd6f-ff73-461d-aca1-7d867d0eb95f",
+  "duration_sec": 141.93,
+  "segments": 41,
+  "backchannels": 8
+ },
+ {
+  "key": "qa_v1_03",
+  "scenario": "qa_v1",
+  "id": "712b395a-83e0-4aa4-8010-cc3b4425083b",
+  "duration_sec": 145.424,
+  "segments": 43,
+  "backchannels": 12
+ },
+ {
+  "key": "qa_v1_04",
+  "scenario": "qa_v1",
+  "id": "994a1836-3a85-4419-9e35-eb9fbd1e4607",
+  "duration_sec": 136.715,
+  "segments": 44,
+  "backchannels": 11
+ },
+ {
+  "key": "qa_v1_05",
+  "scenario": "qa_v1",
+  "id": "fb7df063-6654-440e-bb3c-9ebae1a9800c",
+  "duration_sec": 129.588,
+  "segments": 41,
+  "backchannels": 9
+ }
+]

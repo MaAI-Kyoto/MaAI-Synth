@@ -1,0 +1,20 @@
+# Stage 3 (TTS client + MaAI timing + checks) and everything of requirements.txt.
+# Install torch first with the CUDA build that matches your driver (https://pytorch.org), e.g.
+#   pip install torch --index-url https://download.pytorch.org/whl/cu126
+-r requirements.txt
+torch>=2.6
+scipy
+soundfile>=0.12
+librosa>=0.10
+soxr
+requests
+huggingface-hub
+matplotlib            # tools/build_demo_page.py
+# MaAI (MaaiBatch) is imported from ./MaAI/src (bash scripts/setup_maai.sh); its runtime packages:
+transformers==5.5.3
+einops>=0.7.0
+onnxruntime-gpu>=1.20.0
+pygame-ce
+# optional: pyaudio (not needed; a stub is installed when it is missing)
+# optional, voice banks with tools/make_voice_bank.py --sidon: torchaudio
+# optional, persona pool (build_partner_personas.py): pyarrow pandas

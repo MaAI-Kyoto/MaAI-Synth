@@ -1,0 +1,406 @@
+diff --git a/vllm_omni/config/pipeline_registry.py b/vllm_omni/config/pipeline_registry.py
+index 5d7a7f4..eba70c2 100644
+--- a/vllm_omni/config/pipeline_registry.py
++++ b/vllm_omni/config/pipeline_registry.py
+@@ -32,6 +32,7 @@ from vllm.logger import init_logger
+ from vllm_omni.config.stage_config import (
+     PipelineConfig,
+ )
++from vllm_omni.diffusion.models.irodori.pipeline_config import IRODORI_PIPELINE
+ from vllm_omni.diffusion.models.pi0_pipeline_config import PI0_PIPELINE
+ from vllm_omni.diffusion.models.pi05_pipeline_config import PI05_PIPELINE
+ from vllm_omni.model_executor.models.audex.pipeline import (
+@@ -196,6 +197,7 @@ OMNI_PIPELINES: dict[str, PipelineConfig | PipelineResolverFunc] = {
+     "moss_tts_nano": MOSS_TTS_NANO_PIPELINE,
+     "minimax_h3_disaggregated": MINIMAX_H3_PIPELINE,
+     "omnivoice": OMNIVOICE_PIPELINE,
++    "irodori_tts": IRODORI_PIPELINE,
+     "mammoth_moda2": MAMMOTH_MODA2_PIPELINE,
+     "mammoth_moda2_ar": MAMMOTH_MODA2_AR_PIPELINE,
+     "moss_tts_delay": MOSS_TTS_PIPELINE,
+diff --git a/vllm_omni/deploy/irodori_tts.yaml b/vllm_omni/deploy/irodori_tts.yaml
+new file mode 100644
+index 0000000..08dd842
+--- /dev/null
++++ b/vllm_omni/deploy/irodori_tts.yaml
+@@ -0,0 +1,17 @@
++# Irodori-TTS deploy: diffusion engine single stage (RF-DiT + DACVAE, 48 kHz).
++# Concurrent /v1/audio/speech requests are grouped by the request batcher and run through
++# Irodori's synthesize_batch (results equal unbatched ones).
++async_chunk: false
++pipeline: irodori_tts
++
++stages:
++  - stage_id: 0
++    devices: "0"
++    enforce_eager: true
++    trust_remote_code: true
++    distributed_executor_backend: "mp"
++    dtype: "float32"
++    # 16 concurrent requests per batch (1.07x vs 8 on RTX 3090). Results equal unbatched synthesis up to
++    # floating-point batching noise.
++    max_num_seqs: 16
++    request_batch_max_wait_ms: 20
+diff --git a/vllm_omni/diffusion/executor/multiproc_executor.py b/vllm_omni/diffusion/executor/multiproc_executor.py
+index 40ab555..9ba30d6 100644
+--- a/vllm_omni/diffusion/executor/multiproc_executor.py
++++ b/vllm_omni/diffusion/executor/multiproc_executor.py
+@@ -998,12 +998,21 @@ class MultiprocDiffusionExecutor(DiffusionExecutor):
+                             exc = e
+ 
+                     if batch_id:
++                        late_map = None
+                         with self._futures_lock:
+                             if self._closed:
+                                 # shutdown() cleared _completed_outputs while
+                                 # we were unpacking; drop this delivery.
+                                 continue
+-                            self._finish_output(batch_id, output_result, exc)
++                            # MaAI-Synth fix: if execute_batch() registered the split map while the SHM was being
++                            # read, caching the result under batch_id leaves it orphaned (nobody collects it and the
++                            # whole request batch times out after 3600 s). Deliver it through the split map instead.
++                            late_map = self._batch_split_map.pop(batch_id, None)
++                            if late_map is None:
++                                self._finish_output(batch_id, output_result, exc)
++                        if late_map is not None:
++                            self._deliver_batch_split(late_map, output_result,
++                                                      str(exc) if exc is not None else msg.error)
+ 
+     def _finish_output(
+         self,
+diff --git a/vllm_omni/diffusion/models/irodori/__init__.py b/vllm_omni/diffusion/models/irodori/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/vllm_omni/diffusion/models/irodori/pipeline_config.py b/vllm_omni/diffusion/models/irodori/pipeline_config.py
+new file mode 100644
+index 0000000..7438c20
+--- /dev/null
++++ b/vllm_omni/diffusion/models/irodori/pipeline_config.py
+@@ -0,0 +1,28 @@
++# SPDX-License-Identifier: Apache-2.0
++# SPDX-FileCopyrightText: Copyright contributors to the vLLM-Omni project
++"""Irodori-TTS pipeline topology: a single diffusion stage (text + reference speech → 48 kHz audio)."""
++
++from vllm_omni.config.stage_config import (
++    PipelineConfig,
++    StageExecutionType,
++    StagePipelineConfig,
++)
++
++IRODORI_PIPELINE = PipelineConfig(
++    model_type="irodori_tts",
++    default_deploy_config_name="irodori_tts.yaml",
++    model_arch="IrodoriPipeline",
++    stages=(
++        StagePipelineConfig(
++            stage_id=0,
++            model_stage="dit",
++            execution_type=StageExecutionType.DIFFUSION,
++            input_sources=(),
++            final_output=True,
++            final_output_type="audio",
++            owns_tokenizer=False,
++            requires_multimodal_data=False,
++            engine_output_type="audio",
++        ),
++    ),
++)
+diff --git a/vllm_omni/diffusion/models/irodori/pipeline_irodori.py b/vllm_omni/diffusion/models/irodori/pipeline_irodori.py
+new file mode 100644
+index 0000000..32f512b
+--- /dev/null
++++ b/vllm_omni/diffusion/models/irodori/pipeline_irodori.py
+@@ -0,0 +1,206 @@
++# SPDX-License-Identifier: Apache-2.0
++"""Irodori-TTS (Aratako, RF-DiT + DACVAE, 48 kHz Japanese TTS) on the vLLM-Omni diffusion engine.
++
++Request-mode pipeline: the diffusion engine's request batcher groups concurrent
++``/v1/audio/speech`` requests (``max_num_seqs`` / ``request_batch_max_wait_ms``),
++and ``forward`` runs them through Irodori's own ``InferenceRuntime.synthesize_batch``
++(right-padded latents + per-request noise, so a batched result equals the
++unbatched one). The upstream Irodori code is imported from ``irodori.src``.
++
++Model directory layout (``--model <dir>``)::
++
++    config.json = {"architectures": ["IrodoriPipeline"],
++                   "irodori": {"src": "/path/to/Irodori-TTS",
++                               "checkpoint": "/path/to/model.safetensors",
++                               "codec_repo": "Aratako/Semantic-DACVAE-Japanese-32dim",
++                               "precision": "fp32", "codec_precision": "fp32",
++                               "compile": false,
++                               "helpers": "/path/to/dir containing irodori_fast.py (optional)"}}
++
++Per-request knobs go in ``extra_params`` (all optional): ``seconds`` (target
++length incl. edge silence), ``ref_wavs`` (server-local reference clips of the
++same speaker, concatenated in order), ``max_ref_seconds``, ``num_steps``,
++``cfg_scale_text``, ``cfg_scale_speaker`` and any other ``SamplingRequest``
++field. Without ``ref_wavs`` the inline ``ref_audio`` is used.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++import sys
++import tempfile
++from collections.abc import Iterable
++from typing import Any, ClassVar
++
++import numpy as np
++import torch
++from torch import nn
++from vllm.logger import init_logger
++
++from vllm_omni.diffusion.data import DiffusionOutput, OmniDiffusionConfig
++from vllm_omni.diffusion.distributed.utils import get_local_device
++from vllm_omni.diffusion.models.interface import SupportAudioOutput
++from vllm_omni.diffusion.worker.request_batch import DiffusionRequestBatch
++
++logger = init_logger(__name__)
++
++_RESERVED = {"text", "ref_wav", "ref_wavs", "ref_latent", "ref_latents", "seed", "seconds"}
++
++
++def get_irodori_post_process_func(od_config: OmniDiffusionConfig):
++    def post_process_func(audio: torch.Tensor, output_type: str = "np"):
++        if output_type == "pt":
++            return audio
++        return audio.cpu().float().numpy()
++
++    return post_process_func
++
++
++class IrodoriPipeline(nn.Module, SupportAudioOutput):
++    support_audio_output: ClassVar[bool] = True
++    supports_request_batch: ClassVar[bool] = True
++    audio_sample_rate: ClassVar[int] = 48000
++
++    def __init__(self, *, od_config: OmniDiffusionConfig, prefix: str = ""):
++        super().__init__()
++        self.od_config = od_config
++        self.device = get_local_device()
++        with open(os.path.join(od_config.model, "config.json")) as f:
++            self.icfg: dict[str, Any] = json.load(f).get("irodori", {})
++        src = self.icfg.get("src")
++        if src and src not in sys.path:
++            sys.path.insert(0, src)
++        helpers = self.icfg.get("helpers")
++        if helpers and helpers not in sys.path:
++            sys.path.append(helpers)
++        self.runtime = None
++        self._tmp = tempfile.mkdtemp(prefix="irodori_vllm_ref_")
++        # A dummy parameter keeps nn.Module bookkeeping (device moves, named_parameters) well-defined.
++        self.register_buffer("_anchor", torch.zeros(1), persistent=False)
++        # Opt-in (config.json irodori.empty_cache_every, default 1 = every batch): torch.cuda.empty_cache()
++        # costs ~70 ms per call (~3.5% throughput on an RTX 3090); call it once every N batches instead.
++        self._empty_cache_every = max(1, int(self.icfg.get("empty_cache_every", 1) or 1))
++        self._forward_count = 0
++
++    # ---------------------------------------------------------------- loading
++    def load_weights(self, weights: Iterable[tuple[str, torch.Tensor]]) -> set[str]:
++        for _ in weights:  # loader contract: consume the iterator
++            pass
++        from irodori_tts.inference_runtime import InferenceRuntime, RuntimeKey
++
++        dev = str(self.device)
++        self.runtime = InferenceRuntime.from_key(
++            RuntimeKey(
++                checkpoint=self.icfg["checkpoint"],
++                model_device=dev,
++                codec_repo=self.icfg.get("codec_repo", "Aratako/Semantic-DACVAE-Japanese-32dim"),
++                model_precision=self.icfg.get("precision", "fp32"),
++                codec_device=dev,
++                codec_precision=self.icfg.get("codec_precision", "fp32"),
++                codec_deterministic_encode=True,
++                codec_deterministic_decode=True,
++                compile_model=bool(self.icfg.get("compile", False)),
++                compile_dynamic=bool(self.icfg.get("compile_dynamic", True)),
++            )
++        )
++        try:  # identical results, avoids re-encoding the reference clips per request
++            from irodori_fast import install_ref_latent_cache
++
++            install_ref_latent_cache(self.runtime)
++        except ImportError:
++            logger.warning("irodori_fast not importable; reference latents are re-encoded per request")
++        if os.environ.get("IRODORI_CUDA_GRAPH", "") == "1":
++            # Opt-in (off by default): replay one diffusion (DiT) step as a CUDA graph. Bit-identical to eager;
++            # ~1.6x on batches of short utterances, no gain under heavy concurrent load (needs irodori_graph.py).
++            try:
++                from irodori_graph import install as install_cuda_graph
++
++                install_cuda_graph(self.runtime)
++                logger.info("Irodori: CUDA graph for the DiT step enabled (IRODORI_CUDA_GRAPH=1)")
++            except Exception as e:  # noqa: BLE001
++                logger.warning("Irodori: CUDA graph not enabled (%s)", e)
++        logger.info("Irodori runtime ready on %s (%s)", dev, self.icfg.get("checkpoint"))
++        return {name for name, _ in self.named_parameters()}
++
++    # --------------------------------------------------------------- requests
++    def _ref_path(self, ref_audio: Any) -> str:
++        wav, sr = ref_audio
++        wav = np.asarray(wav, dtype=np.float32).reshape(-1)
++        h = hashlib.sha1(wav.tobytes() + str(int(sr)).encode()).hexdigest()
++        path = os.path.join(self._tmp, f"{h}.wav")
++        if not os.path.exists(path):
++            import soundfile as sf
++
++            sf.write(path, wav, int(sr), subtype="FLOAT")
++        return path
++
++    def _build_request(self, prompt: Any, extra: dict[str, Any]):
++        from irodori_tts.inference_runtime import SamplingRequest
++
++        if isinstance(prompt, dict):
++            text = prompt.get("input") or prompt.get("text") or prompt.get("prompt") or ""
++            ref_audio = prompt.get("ref_audio")
++        else:
++            text, ref_audio = str(prompt or ""), None
++        if not text.strip():
++            raise ValueError("Empty text prompt")
++        fields = set(SamplingRequest.__dataclass_fields__)
++        kw: dict[str, Any] = {k: v for k, v in extra.items() if k in fields and k not in _RESERVED}
++        kw["text"] = text
++        if extra.get("seed") is not None:
++            kw["seed"] = int(extra["seed"])
++        if extra.get("seconds") is not None:
++            kw["seconds"] = float(extra["seconds"])
++        ref_wavs = [p for p in (extra.get("ref_wavs") or []) if isinstance(p, str) and os.path.exists(p)]
++        if len(ref_wavs) > 1:
++            kw["ref_wavs"] = ref_wavs
++        elif len(ref_wavs) == 1:
++            kw["ref_wav"] = ref_wavs[0]
++        elif ref_audio is not None:
++            kw["ref_wav"] = self._ref_path(ref_audio)
++        else:
++            kw["no_ref"] = True
++        return SamplingRequest(**kw)
++
++    @torch.inference_mode()
++    def forward(self, req: DiffusionRequestBatch) -> list[DiffusionOutput]:
++        from irodori_tts.inference_runtime import batch_compatibility_key
++
++        outputs: list[DiffusionOutput | None] = [None] * len(req.requests)
++        groups: dict[Any, list[tuple[int, Any]]] = {}
++        for i, request in enumerate(req.requests):
++            try:
++                sreq = self._build_request(request.prompt, dict(request.sampling_params.extra_args or {}))
++            except Exception as e:  # noqa: BLE001
++                outputs[i] = DiffusionOutput(error=f"{type(e).__name__}: {e}")
++                continue
++            key = batch_compatibility_key(sreq)
++            groups.setdefault(key if key is not None else ("solo", i), []).append((i, sreq))
++        for members in groups.values():
++            idx = [i for i, _ in members]
++            sreqs = [r for _, r in members]
++            try:
++                results = (
++                    self.runtime.synthesize_batch(sreqs) if len(sreqs) > 1 else [self.runtime.synthesize(sreqs[0])]
++                )
++            except Exception as e:  # noqa: BLE001  fall back to one-by-one so one bad request cannot sink the batch
++                logger.warning("Irodori batch of %d failed (%s); retrying one by one", len(sreqs), e)
++                results = []
++                for r in sreqs:
++                    try:
++                        results.append(self.runtime.synthesize(r))
++                    except Exception as e1:  # noqa: BLE001
++                        results.append(e1)
++            for i, res in zip(idx, results):
++                if isinstance(res, Exception):
++                    outputs[i] = DiffusionOutput(error=f"{type(res).__name__}: {res}")
++                else:
++                    outputs[i] = DiffusionOutput(output=res.audio.detach().float().reshape(-1).cpu())
++        # Batch-size/length dependent allocations otherwise pile up in the caching allocator.
++        # Once every `empty_cache_every` batches (default 1 = every batch).
++        self._forward_count += 1
++        if self._forward_count % self._empty_cache_every == 0:
++            torch.cuda.empty_cache()
++        return outputs  # type: ignore[return-value]
+diff --git a/vllm_omni/diffusion/registry.py b/vllm_omni/diffusion/registry.py
+index ff6c828..613e49e 100644
+--- a/vllm_omni/diffusion/registry.py
++++ b/vllm_omni/diffusion/registry.py
+@@ -339,6 +339,11 @@ _DIFFUSION_MODELS = {
+         "pipeline_magi2",
+         "Magi2Pipeline",
+     ),
++    "IrodoriPipeline": (
++        "irodori",
++        "pipeline_irodori",
++        "IrodoriPipeline",
++    ),
+     "OmniVoicePipeline": (
+         "omnivoice",
+         "pipeline_omnivoice",
+@@ -694,6 +699,7 @@ _DIFFUSION_POST_PROCESS_FUNCS = {
+     "SanaImageToVideoPipeline": "get_sana_video_i2v_post_process_func",
+     "Magi2Pipeline": "get_magi2_post_process_func",
+     "OmniVoicePipeline": "get_omnivoice_post_process_func",
++    "IrodoriPipeline": "get_irodori_post_process_func",
+     "SenseNovaU1Pipeline": "get_sensenova_u1_post_process_func",
+     "Cosmos3OmniDiffusersPipeline": "get_cosmos3_post_process_func",
+     "Cosmos3OmniPipeline": "get_cosmos3_post_process_func",
+diff --git a/vllm_omni/entrypoints/openai/serving_speech.py b/vllm_omni/entrypoints/openai/serving_speech.py
+index 40ae2f9..881e2e7 100644
+--- a/vllm_omni/entrypoints/openai/serving_speech.py
++++ b/vllm_omni/entrypoints/openai/serving_speech.py
+@@ -71,6 +71,18 @@ from vllm_omni.utils.speaker_cache import get_speaker_cache
+ logger = init_logger(__name__)
+ 
+ 
++def _summarize_extra_params(value: Any, limit: int = 80) -> Any:
++    """Shorten extra_params for logging (long strings -> length only, long lists -> count + head)."""
++    if isinstance(value, dict):
++        return {k: _summarize_extra_params(v, limit) for k, v in value.items()}
++    if isinstance(value, (list, tuple)):
++        head = [_summarize_extra_params(v, limit) for v in value[:3]]
++        return head + [f"...(+{len(value) - 3})"] if len(value) > 3 else head
++    if isinstance(value, (str, bytes)) and len(value) > limit:
++        return f"<{type(value).__name__} len={len(value)}>"
++    return value
++
++
+ _SPEECH_USAGE_INPUT_TOKENS_HEADER = "X-VLLM-OMNI-INPUT-TOKENS"
+ _SPEECH_USAGE_OUTPUT_TOKENS_HEADER = "X-VLLM-OMNI-OUTPUT-TOKENS"
+ _SPEECH_USAGE_TOTAL_TOKENS_HEADER = "X-VLLM-OMNI-TOTAL-TOKENS"
+@@ -107,7 +119,8 @@ def _stage_speech_metadata(stage: Any) -> tuple[str | None, str | None, str | No
+ # WAV. Covers both the TTS ("audex") and TTA ("audex_tta") pipelines.
+ _AUDEX_NO_AUDIO_GUARD_MODEL_TYPES = frozenset({"audex", "audex_tta"})
+ _REF_AUDIO_MIN_DURATION = 1.0  # seconds
+-_REF_AUDIO_MAX_DURATION = 30.0  # seconds
++# MaAI-Synth: overridable with VLLM_OMNI_REF_AUDIO_MAX_SEC (voice-bank takes are 25-34 s).
++_REF_AUDIO_MAX_DURATION = float(os.environ.get("VLLM_OMNI_REF_AUDIO_MAX_SEC", "30") or 30)  # seconds
+ _REF_AUDIO_METADATA_FETCH_ATTEMPTS = 3
+ _REMOTE_REF_AUDIO_SCHEMES = frozenset({"http", "https", "data"})
+ _REF_AUDIO_RESOLVE_CACHE_MAX_ENTRIES = 1024
+@@ -2026,7 +2039,8 @@ class OmniOpenAIServingSpeech(OpenAIServing, AudioMixin):
+             if sampling_params_list[0].extra_args is None:
+                 sampling_params_list[0].extra_args = {}
+             sampling_params_list[0].extra_args.update(request.extra_params)
+-            logger.info("Applied extra_params: %s", request.extra_params)
++            # MaAI-Synth: do not dump the values at INFO (reference audio in extra_params can be MBs per request).
++            logger.debug("Applied extra_params: %s", _summarize_extra_params(request.extra_params))
+ 
+         # Apply adapter-owned sampling overrides, including request-level token
+         # limits and model-specific dynamic token or stop-token configuration.
+@@ -2238,7 +2252,8 @@ class OmniOpenAIServingSpeech(OpenAIServing, AudioMixin):
+                     collect["word_timestamps"] = ts
+ 
+             audio_tensor = audio_output[audio_key]
+-            sr_raw = audio_output.get("sr", 24000)
++            # Diffusion pipelines report their rate as "audio_sample_rate" (output_formatter); AR stages use "sr".
++            sr_raw = audio_output.get("sr", audio_output.get("audio_sample_rate", 24000))
+             sr_val = sr_raw[-1] if isinstance(sr_raw, list) and sr_raw else sr_raw
+             sample_rate = sr_val.item() if hasattr(sr_val, "item") else int(sr_val)
+ 
+@@ -2429,7 +2444,8 @@ class OmniOpenAIServingSpeech(OpenAIServing, AudioMixin):
+             audio_output = cast(dict, audio_output)
+ 
+             audio_tensor = audio_output[audio_key]
+-            sr_raw = audio_output.get("sr", 24000)
++            # Diffusion pipelines report their rate as "audio_sample_rate" (output_formatter); AR stages use "sr".
++            sr_raw = audio_output.get("sr", audio_output.get("audio_sample_rate", 24000))
+             sr_val = sr_raw[-1] if isinstance(sr_raw, list) and sr_raw else sr_raw
+             sample_rate = sr_val.item() if hasattr(sr_val, "item") else int(sr_val)
+ 

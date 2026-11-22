@@ -1,0 +1,171 @@
+# =============================================================================
+# MaAI-Synth — shared settings for every scenario (configs/<scenario>.yaml extends this file)
+# =============================================================================
+# Most users only touch these keys:
+#   model / llm.base_urls     LLM for Stage 1-2 (default: Gemma 4 31B served by vLLM on localhost:8001)
+#   tts.refine.base_urls      LLM used by Stage 3 to insert / reword backchannels (same server by default)
+#   tts.engine                TTS method = a file name in tts_presets/ (default: irodori-yomi-v4)
+#   tts.fish_speech.base_url  TTS server (default: Irodori-TTS on vLLM-Omni, localhost:8980; comma-separate several)
+#   tts.main_voices_file      voice bank(s) for the system side (ch0)   -> voices/<bank>/voices.csv
+#   tts.voices_file           voice bank(s) for the user side (ch1)     -> voices/<bank>/voices.csv
+#   tts.retime.backend        turn-taking / backchannel timing model: maaibatch = MaAI (MaaiBatch, default)
+#   target_dialogues          how many dialogues to generate (or pass --target N)
+# Everything else is the tuned production setting. Keys are documented (in Japanese) next to the code that reads
+# them (generate_metadata.py, generate_dialogues.py, generate_tts.py, refine_maai.py, retime_maai.py).
+# The `tts.fish_speech` block name is historical: it holds the settings of every reference-audio TTS backend.
+# =============================================================================
+target_dialogues: 10
+max_cost_usd: 100.0
+max_concurrent_requests: 2
+request_interval: 1.0
+retry_max_attempts: 10
+retry_base_delay: 5.0
+pricing: {input_per_1m: 2.5, output_per_1m: 15.0}
+model: google/gemma-4-31B-it
+llm:
+  provider: local
+  api_key_env: OPENAI_API_KEY
+  model: google/gemma-4-31B-it
+  timeout: 1800
+  max_retries: 0
+  extra_body:
+    chat_template_kwargs: {enable_thinking: false}
+  ctx_per_request: 16384
+  vllm_concurrency: 16
+  base_urls: ['http://localhost:8001/v1']
+metadata:
+  batch_size: 1
+  main_speaker: {name: イノウエ, gender: male, age_range: 30代}
+dialogue:
+  mode: enriched
+  retry_max_attempts: 8
+  yomi: true
+  yomi_ruby: true
+  enrich: {filler_inject: false, fillers_per_turn: 2, filler_len_step: 20, sfp_inject: false, sfp_floor: 0.0, ne_swap_casual: true,
+    comma_run_max: 0, period_split: true, laugh_ratio: 0.025, laugh_cap_ratio: 0.04}
+  prompt_profile: gemma
+voice: {mode: passthrough}
+tts:
+  engine: irodori-yomi-v4
+  write_transcript: true
+  sample_rate: 24000
+  short_text_threshold: 4
+  speed: 1.0
+  gpu: null
+  model_dir: null
+  use_vllm: false
+  voices_file: [voices/mori/voices.csv]
+  voices: []
+  voice_age_tolerance: 10
+  voice_age_min_pool: 4
+  fish_speech:
+    base_url: http://localhost:8980
+    endpoint: /v1/tts
+    endpoint_multiturn: /v1/tts_multiturn
+    format: wav
+    timeout: 300
+    use_msgpack: true
+    use_memory_cache: 'on'
+    window: 2
+    window_context: 1
+    per_speaker: false
+    context_audio: false
+    context_mode: history
+    context_anchor: false
+    prefix_tag: ''
+    voices: []
+    emotion_tags: false
+    tag_engine: llm
+    tag_density: max
+    tag_retry_max: 10
+    gen: {temperature: 0.8, top_p: 0.8, repetition_penalty: 1.1, max_new_tokens: 1024, chunk_length: 200, normalize: true,
+      eos_bias: 4.0}
+    regen_on_hiss:
+      enabled: true
+      hiss_sec: 0.6
+      max_retries: 4
+      temp_schedule: [0.8, 0.9, 1.0, 1.0]
+    regen_on_tail: {enabled: false, max_retries: 2, seed_base: 20260730, gap: 0.2, burst: 0.5, min_burst: 0.12, max_drop: 14.0,
+      max_rate: 13.0}
+    regen_on_misread:
+      enabled: true
+      threshold: 0.12
+      min_chars: 6
+      max_retries: 3
+      ruby: {open_on_retry: true, workers: 8}
+    regen_on_speaker_leak: {enabled: true, own_max: 0.85, margin: 0.1, max_retries: 3, min_sec: 0.8}
+    best_of: {rate_target: median, w_rate: 1.0, w_f0sd: 0.5, w_level: 0.5, rate_scale: 1.0, f0sd_scale: 1.0, level_scale: 3.0,
+      hiss_sec: 0.6, hiss_penalty: 2.0, min_mora: 8.0, min_confidence: 0.6, backchannel: false}
+  trim_silence:
+    enabled: false
+    threshold: 0.02
+    thresh_abs: 0.005
+    keep_pad_sec: 0.03
+    max_trim_sec: 0.8
+    max_bc_sec: 3.5
+    dewhistle: {enabled: false, quiet_rel: 0.1, quiet_abs: 0.02, speech_rms: 0.05, peak_hz: 4000.0, hf_hz: 3500.0, hi_frac_min: 0.6,
+      lf_max: 0.35, flat_max: 0.15, samp_ceil: 0.25, run_median_hz: 7000.0, min_run: 4, gap_tol: 2, guard_ms: 30.0, ramp_ms: 6.0}
+  noise_fill: {enabled: true, scope: gaps, color: pink, level_dbfs: -80.0, fade_ms: 30, seed: 1234}
+  rate: {enabled: false, target_mora_per_sec: 7.3, deadband: 0.3, ratio: 0.75, max_slower: 0.8, max_faster: 1.0, min_mora: 8.0,
+    min_sec: 0.5, min_confidence: 0.6, backchannel: false}
+  loudness: {enabled: false, target_dbfs: -20.0, deadband_db: 2.0, ratio: 1.0, max_gain_db: 12.0, peak_ceiling_dbfs: -1.0,
+    bc_offset_db: -3.0}
+  retime:
+    enabled: true
+    backend: maaibatch
+    vapbatch: {vap_ckpt: models/vap/vap_jp_12.5hz_20s.pt, bc_ckpt: models/vap/vap_bc_jp_12.5hz_20s.pt, batch_size: 8, scan_step_sec: 20.0,
+      fold_context_mult: 4, mimi_align: maai, dtype: float32}
+    maaibatch: {repo_src: '', mc: false, batch_size: 8, encoder_chunk_frames: 300, vap_local_model: null, bc_local_model: null}
+    device: cuda
+    model_type: normal-ver2
+    lang: jp
+    frame_rate: 12.5
+    probe_sec: 2.0
+    torch_num_threads: 4
+    cache_dir: null
+    cache_turn_wavs: true
+    tag: maai
+    default_gap: 0.4
+    continued_gap: 0.15
+    fallback: llm
+    vap: {mode: vap, signal: p_now, threshold: 0.55, min_consecutive_frames: 2, min_gap: 0.1, max_gap: 3.0, max_overlap: 0.5,
+      hold_enabled: true, hold_threshold: 0.7, context_len_sec: 20}
+    bc: {mode: bc, signal: p_bc, strategy: peak, threshold: 0.25, search_before: 3.0, search_after: 1.0, min_into_turn: 0.3,
+      max_overlap: 1.0, context_len_sec: 20}
+    hazard: {enabled: true, scale: 1.0, min_prob: 0.0, max_prob: 1.0, offset_mean: 0.3, offset_sd: 0.1, offset_min: 0.0, offset_max: 0.6}
+    latency: {enabled: true, apply_to_fallback: true, m: 0.2, w_fast: 0.3339, w_overlap: 0.334, w_delayed: 0.3322, sd_fast: 0.2463,
+      mu_overlap: -1.2222, sd_overlap: 0.9002, mu_delayed: -0.3655, sd_delayed: 0.9746, max_gap: 2.0, max_overlap: 0.5, subframe: true,
+      seed: 0}
+    repair: {enabled: true, min_speech_len: 5}
+  refine:
+    enabled: false
+    provider: openai
+    api_key_env: OPENAI_API_KEY
+    text_model: google/gemma-4-31B-it
+    fallback_text_model: google/gemma-4-31B-it
+    extra_body:
+      chat_template_kwargs: {enable_thinking: false, reasoning_effort: low}
+    temperature: 0.4
+    rpm: 8
+    max_retries: 3
+    json_retries: 1
+    tag: ref
+    cache_turn_wavs: true
+    density: {tolerance: 0.8}
+    insert:
+      enabled: true
+      threshold: 0.3
+      window_sec: 1.0
+      min_turn_sec: 4.0
+      min_separation_sec: 3.0
+      min_dist_existing_sec: 1.2
+      max_per_turn: 3
+      edge_margin_sec: [1.0, 0.5]
+      skip_greetings: true
+      skip_questions: true
+      min_head_chars: 8
+    limits: {max_reword_frac: 0.5, max_rewrite_frac: 0.3, max_delete_frac: 0.6}
+    quality: {max_added_fillers: 1, reject_ellipsis: true, min_content_retention: 0.75, min_rewrite_chars: 12, max_rewrite_length_ratio: 1.8,
+      bc_shorten_len: 4, duplicate_bc_window: 2, auto_merge_deleted_splits: true, bc_mix_rebalance: false, speech_resynth_no_context: true}
+    base_urls: ['http://localhost:8001/v1']
+  main_voices_file: [voices/inoue/voices.csv]

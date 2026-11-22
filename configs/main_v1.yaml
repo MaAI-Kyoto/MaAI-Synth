@@ -1,0 +1,41 @@
+# =============================================================================
+# Scenario: main_v1 — General conversation on varied situations and relationships
+# =============================================================================
+# Stage 1-2 (LLM -> scripts):  python main.py --config configs/main_v1.yaml
+# Stage 3   (TTS + MaAI):      python generate_tts.py --config configs/main_v1.yaml --retime-refine
+# Outputs go to data/main_v1/ (final audio: data/main_v1/audio/maai_ref/).
+# Only the settings that differ from configs/base.yaml are listed here.
+# =============================================================================
+extends: base.yaml
+
+log_file: data/main_v1/generation.log
+cost_log_file: data/main_v1/cost_log.jsonl
+metadata:
+  num_speakers: 2
+  output_file: data/main_v1/metadata.jsonl
+  scenario_file: scenarios/general.yaml
+  # The bundled user-side voice bank (Mori) is male only, so user-side speakers are male for now.
+  # After adding female voices (voices/<bank>/), restore the original mix: {男女: 0.5, 男性同士: 0.5, 女性同士: 0.0}
+  pair_mix: {男女: 0.0, 男性同士: 1.0, 女性同士: 0.0}
+dialogue:
+  min_turns: 24
+  max_turns: 38
+  prompt_file: prompts/stage2_general_gemma.yaml
+  output_file: data/main_v1/dialogues.jsonl
+  enrich: {filler_ratio: 0.29, filler_cap_ratio: 0.24, filler_floor: 0.1, head_filler_ratio: 0.35, sfp_ratio: 0.27, sfp_cap_ratio: 0.3,
+    ne_cap_per_100: 0.5, comma_span: 24, comma_per_100: 4.0, comma_floor: 2.5, reaction_ratio: 0.3, react_floor: 0.06, monotone_head_cap: 5,
+    comma_thin_seg: 5}
+voice: {output_file: data/main_v1/voice_dialogues.jsonl}
+tts:
+  log_file: data/main_v1/tts.log
+  audio_dir: data/main_v1/audio
+  manifest_file: data/main_v1/audio_manifest.jsonl
+  fish_speech: {multiturn: false, reading_normalize: true}
+  retime:
+    repair: {max_speech_overlap: 0.5}
+  refine:
+    ops_dir: data/main_v1/refine_ops
+    refined_records_file: data/main_v1/voice_dialogues_refined.jsonl
+    density: {min_bc_per_min: 6.0, max_bc_per_min: 15.0}
+    quality:
+      bc_vocab_mix: {うん: 27, はい: 23, あー: 20, へえ: 8, うんうん: 6.5, ええ: 5, うんうんうん: 4.5, はいはい: 3, はいはいはい: 3}
