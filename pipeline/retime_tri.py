@@ -80,7 +80,7 @@ def configure(d: dict | None) -> TriTimingParams:
 def _load_pools(p: TriTimingParams) -> tuple[np.ndarray, np.ndarray]:
     path = Path(p.reference_file)
     if not path.is_absolute():
-        path = Path(__file__).resolve().parent / path
+        path = Path(__file__).resolve().parent.parent / path
     if not path.exists():
         raise FileNotFoundError(f"三人用の参照値がありません: {path}"
                                 "（python reference_corpus_tri.py で作る）")

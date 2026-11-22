@@ -75,7 +75,7 @@ Tips from building the included banks:
   references carries over (pitch range, tempo, fillers).
 - **3–10 takes** per speaker. More takes = more variety between dialogues; ~60 s in total is used per utterance.
 - **Sidon** (`--sidon`) removes noise and reverberation and outputs 48 kHz, at some cost in speaker similarity.
-- Check the result with `python manage_voices.py validate --voices voices/alice/voices.csv`.
+- Check the result with `python tools/manage_voices.py validate --voices voices/alice/voices.csv`.
 
 **Consent.** Only use recordings of people who agreed to have their voice cloned, and follow the license of the TTS model
 (the Irodori-TTS model cards prohibit impersonation and misleading deepfakes).

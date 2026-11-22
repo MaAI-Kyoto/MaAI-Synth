@@ -1,8 +1,8 @@
 # =============================================================================
 # Scenario: qa_v1 — Question answering (the user asks, the system answers)
 # =============================================================================
-# Stage 1-2 (LLM -> scripts):  python main.py --config configs/qa_v1.yaml
-# Stage 3   (TTS + MaAI):      python generate_tts.py --config configs/qa_v1.yaml --retime-refine
+# Stage 1-2 (LLM -> scripts):  python pipeline/main.py --config configs/qa_v1.yaml
+# Stage 3   (TTS + MaAI):      python pipeline/generate_tts.py --config configs/qa_v1.yaml --retime-refine
 # Outputs go to data/qa_v1/ (final audio: data/qa_v1/audio/maai_ref/).
 # Only the settings that differ from configs/base.yaml are listed here.
 # =============================================================================

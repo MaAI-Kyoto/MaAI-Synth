@@ -4,7 +4,7 @@
 
 The scenarios `ft_v2`, `ft_sil_v2`, `al_v1`, `rp_v1` and `qa_v1` give the user side a **persona card**: attributes
 (gender, age, prefecture, occupation, hobbies, marital status, surname), a talking style and two personal facts.
-Cards are drawn from `personas/partner_pool.jsonl` (`metadata.partner_persona`, `partner_persona.py`).
+Cards are drawn from `personas/partner_pool.jsonl` (`metadata.partner_persona`, `pipeline/partner_persona.py`).
 The pool is **not included** in this repository because it is derived from two datasets with their own licenses;
 build it once with the commands below (about 3 minutes; the result is identical to the pool used for the samples).
 
@@ -19,7 +19,7 @@ mkdir -p third_party/data
 huggingface-cli download nvidia/Nemotron-Personas-Japan --repo-type dataset \
     --local-dir third_party/data/nemotron_personas_japan
 git clone https://github.com/nu-dialogue/real-persona-chat.git third_party/data/real-persona-chat
-python build_partner_personas.py \
+python tools/build_partner_personas.py \
     --nemotron third_party/data/nemotron_personas_japan \
     --rpc third_party/data/real-persona-chat \
     --out personas/partner_pool.jsonl

@@ -5,7 +5,7 @@
 ## LLM
 
 All text generation (Stage 1, Stage 2, the Stage 2 proofreading pass and the Stage 3 backchannel refinement) goes
-through the OpenAI Python SDK (`llm_client.py`, `refine_maai.py`). Any server that speaks the OpenAI
+through the OpenAI Python SDK (`pipeline/llm_client.py`, `pipeline/refine_maai.py`). Any server that speaks the OpenAI
 `chat.completions` API works: vLLM, SGLang, llama.cpp (`llama-server`), Ollama, or the OpenAI API itself.
 
 Change these keys (in `configs/base.yaml`, or override them in a scenario config):
@@ -43,7 +43,7 @@ Notes:
 ### How a TTS method is chosen
 
 `tts.engine` names a file in `tts_presets/`. After all `extends:` are resolved, that YAML is deep-merged into
-`tts` (`tts_presets.py`) — so a method is just a reusable bundle of TTS settings. The default
+`tts` (`pipeline/tts_presets.py`) — so a method is just a reusable bundle of TTS settings. The default
 `tts_presets/irodori-yomi-v4.yaml` selects the reference-audio TTS path (`engine: fish_speech`) with the
 `irodori_vllm` backend. (The block is called `fish_speech` for historical reasons; it holds every reference-audio backend.)
 
@@ -70,7 +70,7 @@ GET <base_url>/health -> 200
 2. Copy [`tts_presets/example-http-tts.yaml`](../tts_presets/example-http-tts.yaml) to `tts_presets/<your-engine>.yaml`.
 3. In a config: `tts: {engine: <your-engine>, fish_speech: {base_url: http://localhost:8990}}`
    (several servers: comma-separated URLs; requests are distributed and dead servers are skipped).
-4. Try `python generate_tts.py --config ... --retime-refine --limit 1` and listen to `audio/maai_ref/`.
+4. Try `python pipeline/generate_tts.py --config ... --retime-refine --limit 1` and listen to `audio/maai_ref/`.
 
 Useful options of the `moss_tts` backend (under `tts.fish_speech`): `concurrency`, `moss_out_sr` (keep the server's
 rate instead of 48 kHz), `moss_tempo` (time-stretch every take), `short_best_of` (several takes for short utterances),
@@ -79,7 +79,7 @@ rate instead of 48 kHz), `moss_tempo` (time-stretch every take), `short_best_of`
 
 ### Adding a synthesizer class
 
-For engines that need more than one reference clip, context audio, or batching, add a class in `generate_tts.py`
+For engines that need more than one reference clip, context audio, or batching, add a class in `pipeline/generate_tts.py`
 next to `MossTtsSynth` / `IrodoriVllmSynth` (they show how to implement `_post_speech`, take selection and the
 context paths) and register it in `build_fish_speech_synth()` under a new `backend` name. `IrodoriVllmSynth` is the
 reference implementation used by the default method: it sends `extra_params` (target length, sibling takes of the

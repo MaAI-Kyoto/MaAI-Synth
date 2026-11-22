@@ -30,7 +30,7 @@ from retime_maai import MAAI_SR, ScorerStats
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_REPO_SRC = str(Path(__file__).resolve().parent / "MaAI" / "src")
+DEFAULT_REPO_SRC = str(Path(__file__).resolve().parent.parent / "MaAI" / "src")
 
 
 def _stub_pyaudio_if_missing() -> None:

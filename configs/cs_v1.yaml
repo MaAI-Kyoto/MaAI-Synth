@@ -1,8 +1,8 @@
 # =============================================================================
 # Scenario: cs_v1 — Customer service (the system is the staff member, the user is the customer)
 # =============================================================================
-# Stage 1-2 (LLM -> scripts):  python main.py --config configs/cs_v1.yaml
-# Stage 3   (TTS + MaAI):      python generate_tts.py --config configs/cs_v1.yaml --retime-refine
+# Stage 1-2 (LLM -> scripts):  python pipeline/main.py --config configs/cs_v1.yaml
+# Stage 3   (TTS + MaAI):      python pipeline/generate_tts.py --config configs/cs_v1.yaml --retime-refine
 # Outputs go to data/cs_v1/ (final audio: data/cs_v1/audio/maai_ref/).
 # Only the settings that differ from configs/base.yaml are listed here.
 # =============================================================================

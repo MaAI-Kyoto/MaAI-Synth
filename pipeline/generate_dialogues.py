@@ -171,7 +171,7 @@ def build_prompt_pack(d: dict, where: str = "<dict>") -> "S2PromptPack":
 @functools.lru_cache(maxsize=None)
 def _default_yomi_prompt() -> str:
     """共通の読み注記プロンプト（prompts/yomi_common.yaml）。ファイルが無ければ空＝注記しない。"""
-    p = Path(__file__).resolve().parent / DEFAULT_YOMI_FILE
+    p = Path(__file__).resolve().parent.parent / DEFAULT_YOMI_FILE
     if not p.exists():
         return ""
     with open(p) as f:
@@ -180,10 +180,10 @@ def _default_yomi_prompt() -> str:
 
 @functools.lru_cache(maxsize=None)
 def load_prompt_pack(path: str | None = None) -> S2PromptPack:
-    """プロンプトパック(YAML)を読む。相対パスはこのファイルのあるディレクトリ基準。"""
+    """プロンプトパック(YAML)を読む。相対パスはリポジトリのルート基準（モジュールは pipeline/ にある）。"""
     p = Path(path or DEFAULT_PROMPT_FILE)
     if not p.is_absolute():
-        p = Path(__file__).resolve().parent / p
+        p = Path(__file__).resolve().parent.parent / p
     with open(p) as f:
         return build_prompt_pack(yaml.safe_load(f) or {}, str(p))
 

@@ -7,8 +7,8 @@
 
 | 部品 | 既定 | ハードウェア | 環境 |
 |---|---|---|---|
-| Stage1〜2（`main.py`） | — | CPU | `requirements.txt` |
-| Stage3（`generate_tts.py`） | MaAI（MaaiBatch）・ASR・話者の検査 | GPU 1枚・約 6 GB | `requirements-tts.txt` ＋ `./MaAI` |
+| Stage1〜2（`pipeline/main.py`） | — | CPU | `requirements.txt` |
+| Stage3（`pipeline/generate_tts.py`） | MaAI（MaaiBatch）・ASR・話者の検査 | GPU 1枚・約 6 GB | `requirements-tts.txt` ＋ `./MaAI` |
 | LLM サーバ | Gemma 4 31B（FP8）・vLLM・`:8001` | GPU 1枚・48 GB | vLLM を入れた環境 |
 | TTS サーバ | Irodori-TTS-v4.1-Small-Yomi・vLLM-Omni・`:8980` | GPU 1枚・約 8 GB | 別の venv（Python 3.12） |
 
@@ -64,11 +64,11 @@ curl -s http://localhost:8980/health        # 準備ができると 200（初回
 ## 5. 実行
 
 ```bash
-python main.py        --config configs/ft_v1.yaml --target 2          # Stage1＋2
-python generate_tts.py --config configs/ft_v1.yaml --retime-refine --gpu 0   # Stage3
+python pipeline/main.py        --config configs/ft_v1.yaml --target 2          # Stage1＋2
+python pipeline/generate_tts.py --config configs/ft_v1.yaml --retime-refine --gpu 0   # Stage3
 ```
 
-`generate_tts.py` のおもなオプション:
+`pipeline/generate_tts.py` のおもなオプション:
 
 | オプション | 意味 |
 |---|---|
@@ -88,8 +88,8 @@ Stage1〜2 はできている対話を飛ばすので、同じコマンドをも
 同じ config で `--claim` を付けたワーカーを複数起動します（それぞれが1対話ずつ取っていく）:
 
 ```bash
-for g in 0 1 2 3; do python generate_tts.py --config configs/ft_v1.yaml --retime-refine --claim --gpu $g & done; wait
-python generate_tts.py --config configs/ft_v1.yaml --merge-parts
+for g in 0 1 2 3; do python pipeline/generate_tts.py --config configs/ft_v1.yaml --retime-refine --claim --gpu $g & done; wait
+python pipeline/generate_tts.py --config configs/ft_v1.yaml --merge-parts
 ```
 
 ## 困ったとき
@@ -99,4 +99,4 @@ python generate_tts.py --config configs/ft_v1.yaml --merge-parts
 - **LLM が 404 を返す** — config の `model:` とサーバの `--served-model-name` を一致させる。
 - **要求がプロキシに飛ぶ** — サーバのホストを `no_proxy` / `NO_PROXY` に足す。
 - **TTS サーバに「connection refused」** — `/health` が 200 を返すまで待つ（初回はカーネルのコンパイルがある）。
-- **相槌の位置がおかしい** — `NVIDIA_TF32_OVERRIDE=0` のままにする（`generate_tts.py` が自動で設定）。TF32 だと MaAI の判定が変わる。
+- **相槌の位置がおかしい** — `NVIDIA_TF32_OVERRIDE=0` のままにする（`pipeline/generate_tts.py` が自動で設定）。TF32 だと MaAI の判定が変わる。

@@ -5,14 +5,14 @@
 ```
 configs/<scenario>.yaml
    │
-   ├─ Stage 1  metadata   generate_metadata.py   LLM ─▶ data/<s>/metadata.jsonl
-   ├─ Stage 2  script     generate_dialogues.py  LLM ─▶ data/<s>/dialogues.jsonl
-   │                      generate_voice_passthrough.py ─▶ data/<s>/voice_dialogues.jsonl
-   └─ Stage 3  audio      generate_tts.py  (TTS server + MaAI + LLM)
+   ├─ Stage 1  metadata   pipeline/generate_metadata.py   LLM ─▶ data/<s>/metadata.jsonl
+   ├─ Stage 2  script     pipeline/generate_dialogues.py  LLM ─▶ data/<s>/dialogues.jsonl
+   │                      pipeline/generate_voice_passthrough.py ─▶ data/<s>/voice_dialogues.jsonl
+   └─ Stage 3  audio      pipeline/generate_tts.py  (TTS server + MaAI + LLM)
                           ─▶ data/<s>/audio/maai_ref/*.flac, transcripts_maai_ref.jsonl
 ```
 
-## Stage 1 — metadata (`generate_metadata.py`)
+## Stage 1 — metadata (`pipeline/generate_metadata.py`)
 
 One LLM request per dialogue designs the situation: a scenario sentence, the two speakers
 (name, gender, age, role, personality), the relationship, speech style, emotional tone, topic keywords
@@ -22,7 +22,7 @@ the system-side speaker (`metadata.main_speaker`, optionally with a persona file
 In the v2 scenarios the user side receives a **persona card** sampled from `personas/partner_pool.jsonl`
 (attributes from Nemotron-Personas-Japan, personality and two facts from RealPersonaChat; see [personas.md](personas.md)).
 
-## Stage 2 — script (`generate_dialogues.py`)
+## Stage 2 — script (`pipeline/generate_dialogues.py`)
 
 `dialogue.mode: enriched` asks the LLM to write the dialogue **as spoken language from the start**:
 fillers, sentence-final particles, commas as pauses, short reactions, split turns. The targets
@@ -40,7 +40,7 @@ Finally the script is converted to the input schema of Stage 3 (`voice_dialogues
 text, type `speech` / `backchannel`, a rough start offset, and scenario extras such as long pauses or overlaps).
 This conversion is deterministic and uses no LLM.
 
-## Stage 3 — audio (`generate_tts.py`, `retime_maai.py`, `retime_maaibatch.py`, `refine_maai.py`)
+## Stage 3 — audio (`pipeline/generate_tts.py`, `pipeline/retime_maai.py`, `pipeline/retime_maaibatch.py`, `pipeline/refine_maai.py`)
 
 `--retime-refine` runs the three steps below for each dialogue.
 
@@ -93,6 +93,6 @@ that matches the audio exactly (see [output.md](output.md)).
 
 - **Long silences** (`ft_sil_*`): Stage 2 marks pauses (`pause_before_sec`), Stage 3 keeps them as fixed pauses.
 - **Overlaps** (`rp_v1`): Stage 2 inserts overlap scenes (`overlap`, `unsaid` fields); Stage 3 cuts the abandoned
-  part of an utterance and overlaps the voices (`rp_audio.py`).
-- **Three-party** (`tri_ft_v1`): `main_tri.py` / `generate_tts_tri.py` reuse the two-party code with a third speaker;
+  part of an utterance and overlaps the voices (`pipeline/rp_audio.py`).
+- **Three-party** (`tri_ft_v1`): `pipeline/main_tri.py` / `pipeline/generate_tts_tri.py` reuse the two-party code with a third speaker;
   MaAI's two-party models are applied as "focus speaker vs. the sum of the others" (experimental).

@@ -5,14 +5,14 @@
 ```
 configs/<シナリオ>.yaml
    │
-   ├─ Stage 1  メタデータ  generate_metadata.py   LLM ─▶ data/<s>/metadata.jsonl
-   ├─ Stage 2  台本        generate_dialogues.py  LLM ─▶ data/<s>/dialogues.jsonl
-   │                       generate_voice_passthrough.py ─▶ data/<s>/voice_dialogues.jsonl
+   ├─ Stage 1  メタデータ  pipeline/generate_metadata.py   LLM ─▶ data/<s>/metadata.jsonl
+   ├─ Stage 2  台本        pipeline/generate_dialogues.py  LLM ─▶ data/<s>/dialogues.jsonl
+   │                       pipeline/generate_voice_passthrough.py ─▶ data/<s>/voice_dialogues.jsonl
    └─ Stage 3  音声        generate_tts.py（TTS サーバ ＋ MaAI ＋ LLM）
                            ─▶ data/<s>/audio/maai_ref/*.flac, transcripts_maai_ref.jsonl
 ```
 
-## Stage1 — メタデータ（`generate_metadata.py`）
+## Stage1 — メタデータ（`pipeline/generate_metadata.py`）
 
 対話ごとに LLM へ1回要求し、場面を設計します: 場面の説明、2人の話者（名前・性別・年代・役割・性格）、関係、話し方、
 感情のトーン、話題のキーワード、3〜5段階の会話の流れ。ジャンルの一覧や規則はシナリオファイル（`scenarios/*.yaml`）が与え、
@@ -21,7 +21,7 @@ config が分布（`metadata.style_mix`・`partner_roles`・`pair_mix`・`topic_
 v2 のシナリオではユーザ側に `personas/partner_pool.jsonl` から引いた**人物カード**を付けます
 （属性は Nemotron-Personas-Japan、性格と事実2文は RealPersonaChat から。[personas_JP.md](personas_JP.md)）。
 
-## Stage2 — 台本（`generate_dialogues.py`）
+## Stage2 — 台本（`pipeline/generate_dialogues.py`）
 
 `dialogue.mode: enriched` では、LLM に**最初から話し言葉として**台本を書かせます: フィラー、終助詞、間としての読点、
 短い反応、分けたターン。目標値（100字あたりのフィラー数、短いターンの割合など）は人間の対面対話コーパスで測ったもので、
@@ -35,7 +35,7 @@ v2 のシナリオではユーザ側に `personas/partner_pool.jsonl` から引�
 最後に台本を Stage3 の入力の形（`voice_dialogues.jsonl`: 話者・本文・種類 `speech` / `backchannel`・おおよその開始位置・
 長い間や重なりなどシナリオごとの項目）に変換します。この変換は決定的で、LLM は使いません。
 
-## Stage3 — 音声（`generate_tts.py`・`retime_maai.py`・`retime_maaibatch.py`・`refine_maai.py`）
+## Stage3 — 音声（`pipeline/generate_tts.py`・`pipeline/retime_maai.py`・`pipeline/retime_maaibatch.py`・`pipeline/refine_maai.py`）
 
 `--retime-refine` は、対話ごとに次の3段を行います。
 
@@ -81,6 +81,6 @@ v2 のシナリオではユーザ側に `personas/partner_pool.jsonl` から引�
 ## シナリオごとの処理
 
 - **長い沈黙**（`ft_sil_*`）: Stage2 が間（`pause_before_sec`）を付け、Stage3 はそれを固定の間として残します。
-- **声の重なり**（`rp_v1`）: Stage2 が重なりの場面（`overlap`・`unsaid` の項目）を入れ、Stage3 は言いかけてやめた部分を切って声を重ねます（`rp_audio.py`）。
-- **三人**（`tri_ft_v1`）: `main_tri.py` / `generate_tts_tri.py` が二人用のコードを使い回して3人目を足します。MaAI の二者モデルは
+- **声の重なり**（`rp_v1`）: Stage2 が重なりの場面（`overlap`・`unsaid` の項目）を入れ、Stage3 は言いかけてやめた部分を切って声を重ねます（`pipeline/rp_audio.py`）。
+- **三人**（`tri_ft_v1`）: `pipeline/main_tri.py` / `pipeline/generate_tts_tri.py` が二人用のコードを使い回して3人目を足します。MaAI の二者モデルは
   「注目する話者 vs ほかの和」として使います（試験的）。

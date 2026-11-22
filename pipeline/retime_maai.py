@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 MAAI_SR = 16000  # MaAI の入力サンプルレート
 
 # backend="vapbatch" の重みの既定パス（vapmodel/export_state_dicts.py の出力先）
-_VAP_MODELS = str(Path(__file__).resolve().parent / "models" / "vap")
+_VAP_MODELS = str(Path(__file__).resolve().parent.parent / "models" / "vap")
 DEFAULT_VAP_CKPT = f"{_VAP_MODELS}/vap_jp_12.5hz_20s.pt"
 DEFAULT_BC_CKPT = f"{_VAP_MODELS}/vap_bc_jp_12.5hz_20s.pt"
 

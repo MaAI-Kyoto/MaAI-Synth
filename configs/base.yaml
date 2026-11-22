@@ -11,7 +11,7 @@
 #   tts.retime.backend        turn-taking / backchannel timing model: maaibatch = MaAI (MaaiBatch, default)
 #   target_dialogues          how many dialogues to generate (or pass --target N)
 # Everything else is the tuned production setting. Keys are documented (in Japanese) next to the code that reads
-# them (generate_metadata.py, generate_dialogues.py, generate_tts.py, refine_maai.py, retime_maai.py).
+# them (pipeline/generate_metadata.py, generate_dialogues.py, generate_tts.py, refine_maai.py, retime_maai.py).
 # The `tts.fish_speech` block name is historical: it holds the settings of every reference-audio TTS backend.
 # =============================================================================
 target_dialogues: 10

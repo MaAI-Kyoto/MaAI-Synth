@@ -26,7 +26,7 @@ The prompts are written in Japanese because the dialogues are Japanese.
 | `qa_v1` | `qa_v1.yaml` | `stage2_qa.yaml` | `topic_plan.style: qa` (question kinds, answer styles), gate `qa_shape` |
 | `cs_v1` | `customer_service_persona.yaml` | `stage2_customer_service_persona.yaml` | the system side is a staff member (`personas/inoue.yaml`) |
 | `main_v1` | `general.yaml` | `stage2_general_gemma.yaml` | varied settings and relationships |
-| `tri_ft_v1` | `tri/first_meeting.yaml` | `tri/stage2_first_meeting.yaml` | three speakers; run with `main_tri.py` / `generate_tts_tri.py` |
+| `tri_ft_v1` | `tri/first_meeting.yaml` | `tri/stage2_first_meeting.yaml` | three speakers; run with `pipeline/main_tri.py` / `pipeline/generate_tts_tri.py` |
 
 ## Making a new scenario
 
@@ -39,7 +39,7 @@ The prompts are written in Japanese because the dialogues are Japanese.
 4. Set `metadata.scenario_file` (and `dialogue.prompt_file`) in your config, then try a few dialogues:
 
    ```bash
-   python main.py --config configs/my_scene.yaml --target 5
+   python pipeline/main.py --config configs/my_scene.yaml --target 5
    ```
 
 5. Look at `data/my_scene/generation.log`: dialogues that fail a quality gate are logged with the reason and
@@ -53,7 +53,7 @@ Useful knobs (all in the config):
 | `metadata.main_speaker` | fixed system-side speaker (`name`, `gender`, `age_range`, `role`, `persona_file` or `persona_files`) |
 | `metadata.style_mix` | share of polite / casual / mixed speech styles |
 | `metadata.partner_roles`, `pair_mix` | who the user side is |
-| `metadata.topic_plan` | how many topics, how the dialogue opens and closes, greetings, naming (`topic_plan.py`) |
+| `metadata.topic_plan` | how many topics, how the dialogue opens and closes, greetings, naming (`pipeline/topic_plan.py`) |
 | `dialogue.min_turns`, `max_turns` | dialogue length |
 | `dialogue.enrich` | spoken-language targets (fillers, particles, reactions, short turns ...) |
 | `dialogue.gates` | quality gates (set a gate to `false` to disable it) |
@@ -62,6 +62,6 @@ Useful knobs (all in the config):
 ## The system-side persona
 
 `personas/*.yaml` describe "イノウエ (Inoue)" — personality, speech style, habits and background — and are given to
-Stage 1 and/or Stage 2 (`persona.py`). To build a dataset for your own system persona, write a new file with the same
+Stage 1 and/or Stage 2 (`pipeline/persona.py`). To build a dataset for your own system persona, write a new file with the same
 keys and set `metadata.main_speaker.persona_file` (or a list in `persona_files`, one is drawn per dialogue).
 Facts written in a persona tend to appear in many dialogues; do not write anything you do not want to be said.

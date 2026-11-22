@@ -1,8 +1,8 @@
 # =============================================================================
 # Scenario: ft_sil_v2 — First meeting + long user-side silences (v2: persona cards)
 # =============================================================================
-# Stage 1-2 (LLM -> scripts):  python main.py --config configs/ft_sil_v2.yaml
-# Stage 3   (TTS + MaAI):      python generate_tts.py --config configs/ft_sil_v2.yaml --retime-refine
+# Stage 1-2 (LLM -> scripts):  python pipeline/main.py --config configs/ft_sil_v2.yaml
+# Stage 3   (TTS + MaAI):      python pipeline/generate_tts.py --config configs/ft_sil_v2.yaml --retime-refine
 # Outputs go to data/ft_sil_v2/ (final audio: data/ft_sil_v2/audio/maai_ref/).
 # Only the settings that differ from configs/base.yaml are listed here.
 # =============================================================================

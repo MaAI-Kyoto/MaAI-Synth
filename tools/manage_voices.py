@@ -5,11 +5,11 @@
 
 使い方:
     # voices/wav 配下の *.wav から CSV 雛形を生成/追記（既存行は保持）
-    python manage_voices.py scan --dir voices/wav
+    python tools/manage_voices.py scan --dir voices/<bank>/wav
 
     # ボイスバンクCSVを検証（音声の長さ・ch・SR、文字起こし、性別/年代、分布）
-    python manage_voices.py validate
-    python manage_voices.py validate --voices voices/voices_erica.csv   # 本番以外のバンク
+    python tools/manage_voices.py validate
+    python tools/manage_voices.py validate --voices voices/<bank>/voices.csv
 
 CSVの id/audio_path は scan が埋める。gender・age_range・text は手で記入する。
 """
@@ -21,6 +21,10 @@ from collections import Counter
 from pathlib import Path
 
 import yaml
+
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "pipeline"))  # pipeline modules
 
 from generate_tts import VOICE_CSV_FIELDS, load_voices_csv, _parse_age
 

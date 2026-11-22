@@ -6,7 +6,7 @@ Nemotron-Personas-Japan から性別×年代（20〜70代）のセルごとに -
 
   # Nemotron-Personas-Japan (CC BY 4.0): https://huggingface.co/datasets/nvidia/Nemotron-Personas-Japan
   # RealPersonaChat (CC BY-SA 4.0):       https://github.com/nu-dialogue/real-persona-chat
-  python build_partner_personas.py \
+  python tools/build_partner_personas.py \
       --nemotron third_party/data/nemotron_personas_japan \
       --rpc third_party/data/real-persona-chat \
       --out personas/partner_pool.jsonl
@@ -22,6 +22,10 @@ from collections import Counter
 from pathlib import Path
 
 import pyarrow.parquet as pq
+
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "pipeline"))  # pipeline modules
 
 from partner_persona import DECADES, age_range_of, talk_style, trait_percentiles, usable_facts
 

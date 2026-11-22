@@ -8,22 +8,22 @@
 
 使い方:
     # Stage 1 + 2 を通しで実行（voice_dialogues.jsonl まで出る）
-    python main.py
+    python pipeline/main.py
 
     # Stage 1（メタデータ生成）のみ
-    python main.py --stage metadata
+    python pipeline/main.py --stage metadata
 
     # Stage 2（対話生成 → voice_dialogues.jsonl への変換）のみ（既存メタデータを使用）
-    python main.py --stage dialogue
+    python pipeline/main.py --stage dialogue
 
     # 変換だけやり直す（audit_pipeline で voice_dialogues の行だけ捨てたあと等。互換用）
-    python main.py --stage voice
+    python pipeline/main.py --stage voice
 
     # 設定ファイル指定
-    python main.py --config my_config.yaml
+    python pipeline/main.py --config my_config.yaml
 
     # 目標数・コスト上限を上書き
-    python main.py --target 500 --max-cost 10.0
+    python pipeline/main.py --target 500 --max-cost 10.0
 """
 
 import argparse

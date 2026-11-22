@@ -70,7 +70,7 @@ python tools/make_voice_bank.py --bank alice --gender female --age 20代 alice_r
 - **自然な会話の音声**のほうが、朗読より生き生きした合成対話になります。参照の話し方（声の高さの幅・テンポ・フィラー）が写ります。
 - 1人あたり **3〜10 テイク**。多いほど対話ごとの変化が増えます。1発話には合計約 60 秒を使います。
 - **Sidon**（`--sidon`）は雑音と残響を取り除いて 48 kHz にしますが、話者の似かたは少し落ちます。
-- 結果は `python manage_voices.py validate --voices voices/alice/voices.csv` で確かめられます。
+- 結果は `python tools/manage_voices.py validate --voices voices/alice/voices.csv` で確かめられます。
 
 **同意について。** 声のクローンに同意した人の録音だけを使い、TTS モデルのライセンスに従ってください
 （Irodori-TTS のモデルカードは、なりすましと人を欺くディープフェイクを禁止しています）。

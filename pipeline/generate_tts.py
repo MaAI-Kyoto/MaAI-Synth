@@ -2056,7 +2056,7 @@ class IrodoriVllmSynth(MossTtsSynth):
                 from irodori_fast import RefIndex
                 # Public release: scan every directory under voices/ that holds *.wav (voices/<bank>/wav/ etc.)
                 dirs = self.icfg.get("voices_dirs") or sorted(
-                    {str(p.parent) for p in (Path(__file__).resolve().parent / "voices").rglob("*.wav")})
+                    {str(p.parent) for p in (Path(__file__).resolve().parent.parent / "voices").rglob("*.wav")})
                 self._refidx = RefIndex(dirs)
             return self._refidx
 
@@ -2162,7 +2162,7 @@ class IrodoriVllmSynth(MossTtsSynth):
         import tempfile
         tmp_dir = Path(str(self.bc_prev.get("tmp_dir") or "data/_tmp/irodori_prevref")).expanduser()
         if not tmp_dir.is_absolute():   # the Irodori server opens these files by path → always send absolute paths
-            tmp_dir = Path(__file__).resolve().parent / tmp_dir
+            tmp_dir = Path(__file__).resolve().parent.parent / tmp_dir
         tmp_dir.mkdir(parents=True, exist_ok=True)
         t = self._commas(re.sub(r"^\s*<\|speaker:\d+\|>\s*", "", normalize_tts_text(text)))
         tx = t

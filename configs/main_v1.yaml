@@ -1,8 +1,8 @@
 # =============================================================================
 # Scenario: main_v1 — General conversation on varied situations and relationships
 # =============================================================================
-# Stage 1-2 (LLM -> scripts):  python main.py --config configs/main_v1.yaml
-# Stage 3   (TTS + MaAI):      python generate_tts.py --config configs/main_v1.yaml --retime-refine
+# Stage 1-2 (LLM -> scripts):  python pipeline/main.py --config configs/main_v1.yaml
+# Stage 3   (TTS + MaAI):      python pipeline/generate_tts.py --config configs/main_v1.yaml --retime-refine
 # Outputs go to data/main_v1/ (final audio: data/main_v1/audio/maai_ref/).
 # Only the settings that differ from configs/base.yaml are listed here.
 # =============================================================================

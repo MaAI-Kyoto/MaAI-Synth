@@ -49,10 +49,10 @@ class ScenarioPack:
 
 @functools.lru_cache(maxsize=None)
 def load_scenario(path: str | None = None) -> ScenarioPack:
-    """シナリオパック(YAML)を読む。相対パスはこのファイルのあるディレクトリ基準。"""
+    """シナリオパック(YAML)を読む。相対パスはリポジトリのルート基準（モジュールは pipeline/ にある）。"""
     p = Path(path or DEFAULT_SCENARIO_FILE)
     if not p.is_absolute():
-        p = Path(__file__).resolve().parent / p
+        p = Path(__file__).resolve().parent.parent / p
     with open(p) as f:
         d = yaml.safe_load(f) or {}
     if not d.get("system_prompt"):

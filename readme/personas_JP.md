@@ -3,7 +3,7 @@
 📄 [English](personas.md) | [日本語](personas_JP.md)
 
 `ft_v2`・`ft_sil_v2`・`al_v1`・`rp_v1`・`qa_v1` は、ユーザ側に**人物カード**を付けます: 属性（性別・年齢・都道府県・職業・趣味・
-婚姻・姓）、話し方、本人の事実2文。カードは `personas/partner_pool.jsonl` から引きます（`metadata.partner_persona`・`partner_persona.py`）。
+婚姻・姓）、話し方、本人の事実2文。カードは `personas/partner_pool.jsonl` から引きます（`metadata.partner_persona`・`pipeline/partner_persona.py`）。
 この母集団は、それぞれライセンスのある2つのデータセットから作るので、このリポジトリには**入れていません**。
 下のコマンドで一度作ってください（約3分。サンプルを作ったときの母集団と同じものができます）。
 
@@ -18,7 +18,7 @@ mkdir -p third_party/data
 huggingface-cli download nvidia/Nemotron-Personas-Japan --repo-type dataset \
     --local-dir third_party/data/nemotron_personas_japan
 git clone https://github.com/nu-dialogue/real-persona-chat.git third_party/data/real-persona-chat
-python build_partner_personas.py \
+python tools/build_partner_personas.py \
     --nemotron third_party/data/nemotron_personas_japan \
     --rpc third_party/data/real-persona-chat \
     --out personas/partner_pool.jsonl

@@ -5,7 +5,7 @@
 ## LLM
 
 テキスト生成（Stage1・Stage2・Stage2 の校閲・Stage3 の相槌の調整）はすべて OpenAI の Python SDK を通ります
-（`llm_client.py`・`refine_maai.py`）。OpenAI の `chat.completions` API を話すサーバならどれでも使えます:
+（`pipeline/llm_client.py`・`pipeline/refine_maai.py`）。OpenAI の `chat.completions` API を話すサーバならどれでも使えます:
 vLLM・SGLang・llama.cpp（`llama-server`）・Ollama・OpenAI API そのもの。
 
 次のキーを変えます（`configs/base.yaml`、またはシナリオの config で上書き）:
@@ -42,7 +42,7 @@ OpenAI API なら `provider: openai` にして `base_urls` を消し、`model` /
 ### TTS の方式の選び方
 
 `tts.engine` は `tts_presets/` のファイル名です。`extends:` をすべて解いたあとで、その YAML を `tts` に deep-merge します
-（`tts_presets.py`）。つまり方式は、使い回せる TTS の設定のまとまりです。既定の `tts_presets/irodori-yomi-v4.yaml` は、
+（`pipeline/tts_presets.py`）。つまり方式は、使い回せる TTS の設定のまとまりです。既定の `tts_presets/irodori-yomi-v4.yaml` は、
 参照音声型の TTS の経路（`engine: fish_speech`）と `irodori_vllm` バックエンドを選びます（ブロック名が `fish_speech` なのは
 歴史的な理由で、参照音声型のバックエンドすべての設定がここに入ります）。
 
@@ -68,7 +68,7 @@ GET <base_url>/health -> 200
 2. [`tts_presets/example-http-tts.yaml`](../tts_presets/example-http-tts.yaml) を `tts_presets/<エンジン名>.yaml` に写す。
 3. config に `tts: {engine: <エンジン名>, fish_speech: {base_url: http://localhost:8990}}` と書く
    （複数サーバはカンマ区切り。要求は振り分けられ、応答しないサーバは飛ばされる）。
-4. `python generate_tts.py --config ... --retime-refine --limit 1` で試し、`audio/maai_ref/` を聴く。
+4. `python pipeline/generate_tts.py --config ... --retime-refine --limit 1` で試し、`audio/maai_ref/` を聴く。
 
 `moss_tts` バックエンドの便利な設定（`tts.fish_speech` の下）: `concurrency`、`moss_out_sr`（48 kHz にせずサーバのレートのまま）、
 `moss_tempo`（全テイクの話速を変える）、`short_best_of`（短い発話は複数テイク）、`best_of`（全発話で複数テイクを作り
@@ -76,7 +76,7 @@ GET <base_url>/health -> 200
 
 ### 合成クラスを足す
 
-参照音声を複数使う・文脈の音声を渡す・まとめて合成するなど、1要求1発話では足りないエンジンは、`generate_tts.py` の
+参照音声を複数使う・文脈の音声を渡す・まとめて合成するなど、1要求1発話では足りないエンジンは、`pipeline/generate_tts.py` の
 `MossTtsSynth` / `IrodoriVllmSynth` の隣にクラスを足し（`_post_speech`・テイク選び・文脈の経路の書き方の見本になる）、
 `build_fish_speech_synth()` に新しい `backend` 名で登録します。`IrodoriVllmSynth` が既定の方式で使う実装で、
 vLLM-Omni の Irodori パイプラインに `extra_params`（目標の長さ・声バンクの兄弟テイク `ref_wavs`・拡散の段数・CFG）を送ります。

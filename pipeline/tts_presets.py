@@ -12,7 +12,7 @@ from pathlib import Path
 
 import yaml
 
-PRESET_DIR = Path(__file__).resolve().parent / "tts_presets"
+PRESET_DIR = Path(__file__).resolve().parent.parent / "tts_presets"
 
 
 def _merge(base: dict, over: dict) -> dict:

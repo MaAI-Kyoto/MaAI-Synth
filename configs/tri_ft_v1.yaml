@@ -1,8 +1,8 @@
 # =============================================================================
 # Scenario: tri_ft_v1 — Three-party first meeting (experimental; needs >= 2 partner voices)
 # =============================================================================
-# Stage 1-2 (LLM -> scripts):  python main_tri.py --config configs/tri_ft_v1.yaml
-# Stage 3   (TTS + MaAI):      python generate_tts_tri.py --config configs/tri_ft_v1.yaml --retime-refine
+# Stage 1-2 (LLM -> scripts):  python pipeline/main_tri.py --config configs/tri_ft_v1.yaml
+# Stage 3   (TTS + MaAI):      python pipeline/generate_tts_tri.py --config configs/tri_ft_v1.yaml --retime-refine
 # Outputs go to data/tri_ft_v1/ (final audio: data/tri_ft_v1/audio/maai_ref/).
 # Only the settings that differ from configs/base.yaml are listed here.
 # =============================================================================

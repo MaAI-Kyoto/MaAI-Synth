@@ -64,11 +64,11 @@ flowchart LR
 
 | ステージ | コマンド | 出力 |
 |---|---|---|
-| 1 · メタデータ | `python main.py --config configs/<シナリオ>.yaml --stage metadata` | `data/<シナリオ>/metadata.jsonl` |
-| 2 · 台本 | `python main.py --config configs/<シナリオ>.yaml --stage dialogue` | `dialogues.jsonl`・`voice_dialogues.jsonl` |
-| 3 · 音声 | `python generate_tts.py --config configs/<シナリオ>.yaml --retime-refine` | `audio/maai_ref/*.flac`・`transcripts_maai_ref.jsonl` |
+| 1 · メタデータ | `python pipeline/main.py --config configs/<シナリオ>.yaml --stage metadata` | `data/<シナリオ>/metadata.jsonl` |
+| 2 · 台本 | `python pipeline/main.py --config configs/<シナリオ>.yaml --stage dialogue` | `dialogues.jsonl`・`voice_dialogues.jsonl` |
+| 3 · 音声 | `python pipeline/generate_tts.py --config configs/<シナリオ>.yaml --retime-refine` | `audio/maai_ref/*.flac`・`transcripts_maai_ref.jsonl` |
 
-`--stage` を付けずに `python main.py --config ...` とすると Stage1 と 2 を続けて行います。
+`--stage` を付けずに `python pipeline/main.py --config ...` とすると Stage1 と 2 を続けて行います。
 
 ### Stage3 と MaAI
 
@@ -111,8 +111,8 @@ CUDA_VISIBLE_DEVICES=1 bash scripts/serve_irodori.sh      # Irodori-TTS v4.1 Sma
 #    readme/personas_JP.md を参照（公開データセット2つを取ってきて personas/partner_pool.jsonl を作る）
 
 # 5. 初対面の雑談を 2 対話作る
-python main.py        --config configs/ft_v1.yaml --target 2
-python generate_tts.py --config configs/ft_v1.yaml --retime-refine --gpu 0
+python pipeline/main.py        --config configs/ft_v1.yaml --target 2
+python pipeline/generate_tts.py --config configs/ft_v1.yaml --retime-refine --gpu 0
 ls data/ft_v1/audio/maai_ref/                # ステレオ FLAC・48 kHz（ch0 = システム、ch1 = ユーザ）
 ```
 
@@ -134,7 +134,7 @@ ls data/ft_v1/audio/maai_ref/                # ステレオ FLAC・48 kHz（ch0 
 | `configs/qa_v1.yaml` | 質問応答 | ユーザが質問し、システムが答える |
 | `configs/cs_v1.yaml` | 接客 | システムが担当者、ユーザが客 |
 | `configs/main_v1.yaml` | いろいろな会話 | さまざまな場面と間柄 |
-| `configs/tri_ft_v1.yaml` | 三人の初対面 | 試験的・`main_tri.py` / `generate_tts_tri.py`・ユーザ側の声が2人以上必要 |
+| `configs/tri_ft_v1.yaml` | 三人の初対面 | 試験的・`pipeline/main_tri.py` / `pipeline/generate_tts_tri.py`・ユーザ側の声が2人以上必要 |
 
 どのシナリオでもシステム側（ch0）は「イノウエ」（男性・30代）です（`metadata.main_speaker`）。初対面・傾聴・重なり・
 質問応答では人物設定（`personas/`）を固定した大学の研究者、接客では担当者になります。
@@ -163,7 +163,7 @@ ls data/ft_v1/audio/maai_ref/                # ステレオ FLAC・48 kHz（ch0 
 - **LLM** — OpenAI 互換のサーバ（vLLM・SGLang・llama.cpp・Ollama など）や OpenAI API ならどれでも使えます。
   `configs/base.yaml` の `model`・`llm.base_urls`・`tts.refine.base_urls` を変えます。
 - **TTS** — TTS の方式は `tts_presets/` の YAML で、`tts.engine` で選びます。新しいエンジンは HTTP サーバ
-  （`POST /v1/audio/speech`）か `generate_tts.py` の合成クラスとして足せます。
+  （`POST /v1/audio/speech`）か `pipeline/generate_tts.py` の合成クラスとして足せます。
 
 詳しくは [readme/extending_JP.md](readme/extending_JP.md)。
 

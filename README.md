@@ -66,11 +66,11 @@ flowchart LR
 
 | Stage | Command | Output |
 |---|---|---|
-| 1 · metadata | `python main.py --config configs/<scenario>.yaml --stage metadata` | `data/<scenario>/metadata.jsonl` |
-| 2 · script | `python main.py --config configs/<scenario>.yaml --stage dialogue` | `dialogues.jsonl`, `voice_dialogues.jsonl` |
-| 3 · audio | `python generate_tts.py --config configs/<scenario>.yaml --retime-refine` | `audio/maai_ref/*.flac`, `transcripts_maai_ref.jsonl` |
+| 1 · metadata | `python pipeline/main.py --config configs/<scenario>.yaml --stage metadata` | `data/<scenario>/metadata.jsonl` |
+| 2 · script | `python pipeline/main.py --config configs/<scenario>.yaml --stage dialogue` | `dialogues.jsonl`, `voice_dialogues.jsonl` |
+| 3 · audio | `python pipeline/generate_tts.py --config configs/<scenario>.yaml --retime-refine` | `audio/maai_ref/*.flac`, `transcripts_maai_ref.jsonl` |
 
-`python main.py --config ...` without `--stage` runs Stage 1 and 2 together.
+`python pipeline/main.py --config ...` without `--stage` runs Stage 1 and 2 together.
 
 ### Stage 3 and MaAI
 
@@ -116,8 +116,8 @@ CUDA_VISIBLE_DEVICES=1 bash scripts/serve_irodori.sh      # Irodori-TTS v4.1 Sma
 #    see readme/personas.md (downloads two public datasets and builds personas/partner_pool.jsonl)
 
 # 5. Generate 2 dialogues of the first-meeting scenario
-python main.py        --config configs/ft_v1.yaml --target 2
-python generate_tts.py --config configs/ft_v1.yaml --retime-refine --gpu 0
+python pipeline/main.py        --config configs/ft_v1.yaml --target 2
+python pipeline/generate_tts.py --config configs/ft_v1.yaml --retime-refine --gpu 0
 ls data/ft_v1/audio/maai_ref/                # stereo FLAC, 48 kHz (ch0 = system, ch1 = user)
 ```
 
@@ -139,7 +139,7 @@ Full instructions (environments, multiple GPUs, troubleshooting): [readme/setup.
 | `configs/qa_v1.yaml` | Question answering | the user asks, the system answers |
 | `configs/cs_v1.yaml` | Customer service | the system is a staff member, the user a customer |
 | `configs/main_v1.yaml` | General conversation | varied situations and relationships |
-| `configs/tri_ft_v1.yaml` | Three-party first meeting | experimental; `main_tri.py` / `generate_tts_tri.py`, needs ≥ 2 user-side voices |
+| `configs/tri_ft_v1.yaml` | Three-party first meeting | experimental; `pipeline/main_tri.py` / `pipeline/generate_tts_tri.py`, needs ≥ 2 user-side voices |
 
 In every scenario the system side (ch0) is "イノウエ (Inoue)", male, 30s (`metadata.main_speaker`).
 In the first-meeting, listening, overlap and QA scenarios he is a university researcher with a fixed persona
@@ -169,7 +169,7 @@ assigned per dialogue by gender and age. See [readme/voice_bank.md](readme/voice
 - **LLM** — any OpenAI-compatible server (vLLM, SGLang, llama.cpp, Ollama ...) or the OpenAI API:
   change `model`, `llm.base_urls` and `tts.refine.base_urls` in `configs/base.yaml`.
 - **TTS** — a TTS method is a YAML file in `tts_presets/` selected by `tts.engine`.
-  New engines plug in as an HTTP server (`POST /v1/audio/speech`) or a synthesizer class in `generate_tts.py`.
+  New engines plug in as an HTTP server (`POST /v1/audio/speech`) or a synthesizer class in `pipeline/generate_tts.py`.
 
 See [readme/extending.md](readme/extending.md).
 

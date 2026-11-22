@@ -1,8 +1,8 @@
 # =============================================================================
 # Scenario: rp_v1 — Overlapping speech (interruptions, simultaneous starts, collaborative completions)
 # =============================================================================
-# Stage 1-2 (LLM -> scripts):  python main.py --config configs/rp_v1.yaml
-# Stage 3   (TTS + MaAI):      python generate_tts.py --config configs/rp_v1.yaml --retime-refine
+# Stage 1-2 (LLM -> scripts):  python pipeline/main.py --config configs/rp_v1.yaml
+# Stage 3   (TTS + MaAI):      python pipeline/generate_tts.py --config configs/rp_v1.yaml --retime-refine
 # Outputs go to data/rp_v1/ (final audio: data/rp_v1/audio/maai_ref/).
 # Only the settings that differ from configs/base.yaml are listed here.
 # =============================================================================

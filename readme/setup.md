@@ -7,8 +7,8 @@ an **LLM server** (Stage 1–3) and a **TTS server** (Stage 3). They can run on 
 
 | Component | Default | Hardware | Environment |
 |---|---|---|---|
-| Stage 1–2 (`main.py`) | — | CPU | `requirements.txt` |
-| Stage 3 (`generate_tts.py`) | MaAI (MaaiBatch), ASR / speaker checks | 1 GPU, ~6 GB | `requirements-tts.txt` + `./MaAI` |
+| Stage 1–2 (`pipeline/main.py`) | — | CPU | `requirements.txt` |
+| Stage 3 (`pipeline/generate_tts.py`) | MaAI (MaaiBatch), ASR / speaker checks | 1 GPU, ~6 GB | `requirements-tts.txt` + `./MaAI` |
 | LLM server | Gemma 4 31B (FP8), vLLM, `:8001` | 1 GPU, 48 GB | your vLLM install |
 | TTS server | Irodori-TTS-v4.1-Small-Yomi, vLLM-Omni, `:8980` | 1 GPU, ~8 GB | separate venv (Python 3.12) |
 
@@ -65,11 +65,11 @@ More servers: start one per GPU (`PORT=8981 ...`) and write `tts.fish_speech.bas
 ## 5. Run
 
 ```bash
-python main.py        --config configs/ft_v1.yaml --target 2          # Stage 1+2
-python generate_tts.py --config configs/ft_v1.yaml --retime-refine --gpu 0   # Stage 3
+python pipeline/main.py        --config configs/ft_v1.yaml --target 2          # Stage 1+2
+python pipeline/generate_tts.py --config configs/ft_v1.yaml --retime-refine --gpu 0   # Stage 3
 ```
 
-Useful options of `generate_tts.py`:
+Useful options of `pipeline/generate_tts.py`:
 
 | Option | Meaning |
 |---|---|
@@ -89,8 +89,8 @@ Stage 1–2 skip dialogues that already exist, so a run can be resumed by runnin
 Start several Stage 3 workers on the same config with `--claim` (each claims one dialogue at a time):
 
 ```bash
-for g in 0 1 2 3; do python generate_tts.py --config configs/ft_v1.yaml --retime-refine --claim --gpu $g & done; wait
-python generate_tts.py --config configs/ft_v1.yaml --merge-parts
+for g in 0 1 2 3; do python pipeline/generate_tts.py --config configs/ft_v1.yaml --retime-refine --claim --gpu $g & done; wait
+python pipeline/generate_tts.py --config configs/ft_v1.yaml --merge-parts
 ```
 
 ## Troubleshooting
@@ -100,5 +100,5 @@ python generate_tts.py --config configs/ft_v1.yaml --merge-parts
 - **The LLM returns 404** — `model:` in the config must equal the server's `--served-model-name`.
 - **Requests go through a proxy** — add the server hosts to `no_proxy` / `NO_PROXY`.
 - **TTS server "connection refused"** — wait for `/health` to return 200; the first start compiles kernels.
-- **Backchannels at odd positions** — keep `NVIDIA_TF32_OVERRIDE=0` (set automatically by `generate_tts.py`);
+- **Backchannels at odd positions** — keep `NVIDIA_TF32_OVERRIDE=0` (set automatically by `pipeline/generate_tts.py`);
   MaAI's decisions change under TF32.
