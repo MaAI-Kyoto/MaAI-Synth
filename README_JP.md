@@ -77,10 +77,23 @@ MaAI を使うのは Stage3 です。台本が決めるのは「何を言うか�
 1. **TTS** — 発話を1つずつ、その話者の声で合成します（複数テイクを作り、自然さ・話速・間・ASR による読みの検査で1本を選ぶ）。
 2. **MaAI による話者交替** — 発話を先頭から順に並べていきます。話者が替わるたびに、それまでにできた対話の直近 20 秒
    （両チャネル・実際に合成した音声）を MaAI の <b>Voice Activity Projection（VAP）</b> モデルに入れ、その予測から次の発話の
-   開始時刻を引きます。決まった長さの間ではなく、人間らしい間・すばやい応答・短い重なりになります。
+   開始時刻を引きます。決まった長さの間ではなく、人間らしい間・すばやい応答・短い重なりになります（下の図）。
 3. **MaAI による相槌** — MaAI の相槌モデルで、聞き手のチャネルに相槌（うん・はい・へえ など）が入りやすい時点を探します。
    LLM がこの候補を見て、どれを入れるか・言い換えるか・消すかを決めます（密度は人間の範囲に収める）。
    新しい相槌を合成し、もう一度 MaAI で配置します。
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/gap_distribution_dark.png">
+    <img src="docs/img/gap_distribution.png" width="760" alt="生成した1万対話の話者交替の間（gap）のヒストグラム。+0.2秒あたりに山が1つ、中央値0.21秒、話者交替の12.8%で声が重なる">
+  </picture>
+</p>
+
+図は、私たちがシナリオ `ft_v2` で生成した 1 万対話について、話者が替わるところの間（gap）を数えたものです。モデルは既定のもの
+（Gemma 4・Irodori-TTS-v4.1-Small-Yomi・MaAI）、Stage3 の設定は `configs/ft_v2.yaml` と同じです（ユーザ側の声だけ、公開版より多い
+ボイスバンクから選びました）。gap が負のところは重なりで、前の話者が話し終える前に次の話者が話し始めています。中央値は 0.21 秒で、
+話者交替の 12.8% で声が重なり、7.7% は 0.5 秒より長く空きます。相槌は数えていません。自分の出力で同じ図を描くには
+`python tools/plot_gap_distribution.py data/<シナリオ>/transcripts_maai_ref.jsonl` を実行します。
 
 MaAI は一括推論の API `maai.MaaiBatch` で使います（`tts.retime.backend: maaibatch`・既定）。リアルタイム版の `Maai` と
 同じ予測を、対話まるごと GPU でまとめて計算します。詳しくは [readme/pipeline_JP.md](readme/pipeline_JP.md)。

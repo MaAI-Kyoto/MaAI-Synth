@@ -81,10 +81,24 @@ Stage 3 is where MaAI comes in. The script only says *what* is said; MaAI decide
 2. **Turn-taking with MaAI** — utterances are placed one after another. At each turn boundary the last 20 s of
    the dialogue built so far (both channels, real synthesized audio) is fed to MaAI's
    <b>Voice Activity Projection (VAP)</b> model, and the start of the next utterance is sampled from its prediction.
-   This produces human-like gaps, quick responses and short overlaps instead of a fixed pause.
+   This produces human-like gaps, quick responses and short overlaps instead of a fixed pause (figure below).
 3. **Backchannels with MaAI** — MaAI's backchannel model scans the listener's channel for moments where a
    backchannel is likely (*うん*, *はい*, *へえ* ...). An LLM sees these candidates and decides which to insert,
    reword or delete (density is kept within human ranges); the new backchannels are synthesized and placed with MaAI again.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/gap_distribution_dark.png">
+    <img src="docs/img/gap_distribution.png" width="760" alt="Histogram of turn-taking gaps in 10,000 generated dialogues: one peak around +0.2 s, median 0.21 s, 12.8% of speaker changes overlap">
+  </picture>
+</p>
+
+The figure shows the gap at every speaker change in 10,000 dialogues of the `ft_v2` scenario that we generated
+with the default models (Gemma 4, Irodori-TTS-v4.1-Small-Yomi, MaAI) and the Stage 3 settings of `configs/ft_v2.yaml`
+(only the user-side voices came from a larger voice bank). A negative gap is an overlap: the next speaker starts before
+the previous one has finished. The median gap is 0.21 s; 12.8% of speaker changes overlap and 7.7% leave more than
+0.5 s of silence. Backchannels are not counted. To draw the same figure for your own output, run
+`python tools/plot_gap_distribution.py data/<scenario>/transcripts_maai_ref.jsonl`.
 
 MaAI is used through its offline batch API `maai.MaaiBatch` (`tts.retime.backend: maaibatch`, the default),
 which gives the same predictions as the real-time `Maai` while processing whole dialogues on the GPU.
